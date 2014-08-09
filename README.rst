@@ -1,3 +1,11 @@
+**master** branch
+
+.. image:: https://travis-ci.org/pypore/pypore.svg?branch=master
+    :target: https://travis-ci.org/pypore/pypore
+
+.. image:: https://coveralls.io/repos/pypore/pypore/badge.png?branch=master
+    :target: https://coveralls.io/r/pypore/pypore?branch=master
+
 pypore
 ======
 
