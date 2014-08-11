@@ -22,7 +22,7 @@ before_install:
 
 install:
   - pip install --upgrade pip setuptools  # Upgrade pip and setuptools to get ones with `wheel` support
-  
+
   # pip Scipy/Numpy versions take too long, use astropy wheels
   - sudo apt-get install libblas-dev libatlas-dev liblapack-dev
   - pip install --no-index --find-links http://wheels2.astropy.org/ numpy
