@@ -11,6 +11,12 @@ from pypore.util import interpret_indexing
 
 CHIMERA_DATA_TYPE = np.dtype('<u2')
 
+# Stupid python 3, dropping xrange....
+try:
+    xrange
+except NameError:
+    xrange = range
+
 
 class ChimeraReader(AbstractReader):
     """

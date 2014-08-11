@@ -1,5 +1,16 @@
 import numpy as np
 
+import sys
+
+ALLOWED_INDEX_TYPES = [int]
+if sys.version_info < (3, 0):
+    ALLOWED_INDEX_TYPES.append(long)
+
+try:
+    xrange
+except NameError:
+    xrange = range
+
 
 def process_range(start, stop, step, length):
     """
@@ -44,7 +55,7 @@ def process_range(start, stop, step, length):
 def is_index(index):
     """Checks if an object can work as an index or not."""
 
-    if type(index) in (int, long):
+    if type(index) in ALLOWED_INDEX_TYPES:
         return True
     elif isinstance(index, np.integer):
         return True
@@ -98,14 +109,15 @@ def interpret_indexing(keys, obj_shape):
 
     # finish the extra dimensions
     if dim < max_keys:
-        for j in xrange(dim, max_keys):
+        for j in range(dim, max_keys):
             starts[j] = 0
             stops[j] = obj_shape[j]
             steps[j] = 1
 
     # compute the new shape for the slice
     shape = []
-    for j in xrange(max_keys):
+    for j in range(max_keys):
+        # new_dim = abs(stops[j] - starts[j])/steps[j]
         new_dim = len(xrange(starts[j], stops[j], steps[j]))
         shape.append(new_dim)
 

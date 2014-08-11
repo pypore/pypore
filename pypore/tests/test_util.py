@@ -41,7 +41,8 @@ class TestUtil(unittest.TestCase):
 
         self.assertTrue(is_index(1))
         self.assertTrue(is_index(int(3923492)))
-        self.assertTrue(is_index(long(34843983214892)))
+        if sys.version_info < (3, 0):
+            self.assertTrue(is_index(long(34843983214892)))
         self.assertTrue(is_index(np.array([1])[0]))
 
         self.assertFalse(is_index("h"))
@@ -135,7 +136,7 @@ class TestUtil(unittest.TestCase):
             expected_result = expected_results[i]
 
             # make sure the starts, stops, steps arrays are equal
-            for j in xrange(3):
+            for j in range(3):
                 np.testing.assert_array_equal(result[j], expected_result[j], "Arrays at index {0} not equal.".format(j))
 
             # make sure the final shape is correct

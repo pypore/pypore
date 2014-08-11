@@ -40,7 +40,8 @@ class ReaderTests(object):
             sample_rate_diff = np.abs(sample_rate - sample_rate_should_be)/sample_rate_should_be
             reader.close()
 
-            self.assertLessEqual(sample_rate_diff, 0.05, "Sample rate read wrong from {0}. Should be {1}, got {2}.".format(filename, sample_rate_should_be, sample_rate))
+
+            self.assertTrue(sample_rate_diff <= 0.05, "Sample rate read wrong from {0}. Should be {1}, got {2}.".format(filename, sample_rate_should_be, sample_rate))
 
     def help_sample_rate(self):
         """
@@ -80,20 +81,19 @@ class ReaderTests(object):
             reader = self.reader_class(filename)
 
             data = reader[:]
-            print "data:", data
             reader.close()
 
             mean = np.mean(data)
 
             mean_diff = abs((mean - mean_should_be) / mean_should_be)
-            self.assertLessEqual(mean_diff, 0.05,
+            self.assertTrue(mean_diff <= 0.05,
                                  "Data mean in '{0}' scaled wrong. "
                                  "Should be {1}, got {2}.".format(filename, mean_should_be, mean))
 
             std_dev = np.std(data)
 
             std_diff = abs((std_dev - std_dev_should_be) / std_dev_should_be)
-            self.assertLessEqual(std_diff, 0.05,
+            self.assertTrue(std_diff <= 0.05,
                                  "Baseline in '{0}' scaled wrong. "
                                  "Should be {1}, got {2}.".format(filename, std_dev_should_be, std_dev))
 
