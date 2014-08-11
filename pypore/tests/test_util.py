@@ -60,6 +60,20 @@ class TestUtil(unittest.TestCase):
         args = []  # will contain arguments to interpret_indexing
         expected_results = []  # will contain expected results from interpret_indexing
 
+        # Test selecting single item from single row
+        args.append((item_ret[0], (1000,)))
+        expected_results.append((
+            np.array([0], dtype=np.integer), np.array([1], dtype=np.integer),
+            np.array([1], dtype=np.integer),
+            (1,)))
+
+        # Test selecting single item from single row
+        args.append((item_ret[:], (1000,)))
+        expected_results.append((
+            np.array([0], dtype=np.integer), np.array([1000], dtype=np.integer),
+            np.array([1], dtype=np.integer),
+            (1000,)))
+
         # Test selecting single row
         args.append((item_ret[0], (2, 1000)))
         expected_results.append((
