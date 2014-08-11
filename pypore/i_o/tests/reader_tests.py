@@ -37,9 +37,10 @@ class ReaderTests(object):
             reader = self.reader_class(filename)
 
             sample_rate = reader.sample_rate
+            sample_rate_diff = np.abs(sample_rate - sample_rate_should_be)/sample_rate_should_be
             reader.close()
 
-            self.assertEqual(sample_rate, sample_rate_should_be, "Sample rate read wrong from {0}. Should be {1}, got {2}.".format(filename, sample_rate_should_be, sample_rate))
+            self.assertLessEqual(sample_rate_diff, 0.05, "Sample rate read wrong from {0}. Should be {1}, got {2}.".format(filename, sample_rate_should_be, sample_rate))
 
     def help_sample_rate(self):
         """
@@ -61,12 +62,10 @@ class ReaderTests(object):
         for i, filename in enumerate(file_names):
             shape_should_be = shapes_should_be[i]
 
-            reader = self.reader_class
+            reader = self.reader_class(filename)
 
             shape = reader.shape
             reader.close()
-
-
 
     def test_scaling(self):
         """
@@ -80,7 +79,8 @@ class ReaderTests(object):
 
             reader = self.reader_class(filename)
 
-            data = reader[0][:]
+            data = reader[:]
+            print "data:", data
             reader.close()
 
             mean = np.mean(data)
@@ -106,5 +106,56 @@ class ReaderTests(object):
         #. list of known means of the data in the test files to check against the reader_class.
         #. list of known standard deviations of the data to check against the reader_class.
 
+        """
+        raise NotImplementedError('Inheritors should override this method.')
+
+    def test_slicing(self):
+        """
+        Tests that slicing works as expected.
+        """
+        file_names = self.help_slicing()
+
+        for filename in file_names:
+
+            reader = self.reader_class(filename)
+
+            # get all the data first, to compare the slicing.
+            # the idea is that if test_get_all_data works, this should work.
+            data = reader[:]
+
+            # check starting points
+            np.testing.assert_array_equal(data[0:], reader[0:])
+            np.testing.assert_array_equal(data[3:], reader[3:])
+            np.testing.assert_array_equal(data[5:], reader[5:])
+
+            # check stopping points
+            np.testing.assert_array_equal(data[:0], reader[:0])
+            np.testing.assert_array_equal(data[:3], reader[:3])
+            np.testing.assert_array_equal(data[:5], reader[:5])
+
+            # check steps
+            np.testing.assert_array_equal(data[::2], reader[::2])
+            np.testing.assert_array_equal(data[::3], reader[::3])
+            np.testing.assert_array_equal(data[::5], reader[::5])
+
+            # check indices
+            np.testing.assert_array_equal(data[0], reader[0])
+            np.testing.assert_array_equal(data[1], reader[1])
+            np.testing.assert_array_equal(data[-1], reader[-1])
+            np.testing.assert_array_equal(data[5], reader[5])
+
+            # check the whole thing
+            np.testing.assert_array_equal(data[0:8:2], reader[0:8:2])
+            np.testing.assert_array_equal(data[1:9:3], reader[1:9:3])
+            np.testing.assert_array_equal(data[-8:-1:-1], reader[-8:-1:-1])
+
+            reader.close()
+
+    def help_slicing(self):
+        """
+        Subclasses should override this method.
+        :return: Subclasses should return the following, in order:
+
+            #. list of filenames to test
         """
         raise NotImplementedError('Inheritors should override this method.')
