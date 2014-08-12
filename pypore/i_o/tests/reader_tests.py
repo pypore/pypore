@@ -19,7 +19,6 @@ class ReaderTests(object):
 
     """
     reader_class = None
-    default_test_data_files = None
 
     def test_non_existing_file_raises(self):
         self.assertRaises(IOError, self.reader_class, 'this_file_does_not_exist.nope')
@@ -67,6 +66,17 @@ class ReaderTests(object):
 
             shape = reader.shape
             reader.close()
+
+    def help_shape(self):
+        """
+        Subclasses should override this and return the following.
+        :return: The following, in order:
+
+            #. list of file names to use as test files
+            #. list of the actual shapes of each file
+
+        """
+        raise NotImplementedError
 
     def test_scaling(self):
         """
