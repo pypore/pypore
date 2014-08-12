@@ -52,23 +52,37 @@ class HekaReader(AbstractReader):
         :param shape:
         :return:
         """
+        # how expensive is this here?
+        my_range = xrange(starts[0], stops[0], steps[0])
+
+        n_points = len(my_range)
+        # if no points are requested, return an empty array
+        if n_points == 0:
+            return np.zeros(0, dtype=HEKA_DATATYPE)
+
+        # if the step size is < 0, we need to figure out what the first point actually is
+        if steps[0] > 0:
+            start = starts[0]
+            negative_step = False
+        else:
+            start = my_range[-1]
+            negative_step = True
+        step_size = abs(steps[0])
+
         # find the block number that contains the start of the selection
-        start_block_number = starts[0] // self._chunk_size
+        start_block_number = start // self._chunk_size
 
         # skip to that block, from the start of the binary data
         self.datafile.seek(self.per_file_header_length + start_block_number * self.total_bytes_per_block)
 
         # how far into the block is the first data point
-        remainder = starts[0] % self._chunk_size
-
-        n_points = len(xrange(starts[0], stops[0], steps[0]))
+        remainder = start % self._chunk_size
 
         # if we are dealing with a single integer, just return it
         if n_points == 1:
             chunk = self._read_heka_next_block()[0]
             values = chunk[remainder]
         else:
-            step_size = steps[0]
             count = 0
             # only read channel 1 for now
             # TODO fix for multichannel
@@ -86,6 +100,9 @@ class HekaReader(AbstractReader):
                 values[count:count + chunk_size] = chunk[:]
                 remainder = (remainder + step_size - self._chunk_size) % step_size
                 count += chunk_size
+
+        if negative_step:
+            values = values[::-1]
 
         return values
 
