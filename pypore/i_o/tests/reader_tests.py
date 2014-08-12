@@ -149,10 +149,10 @@ class ReaderTests(object):
             np.testing.assert_array_equal(data[::5], reader[::5])
 
             # check indices
-            np.testing.assert_array_equal(data[0], reader[0])
-            np.testing.assert_array_equal(data[1], reader[1])
-            np.testing.assert_array_equal(data[-1], reader[-1])
-            np.testing.assert_array_equal(data[5], reader[5])
+            self.assertEqual(data[0], reader[0])
+            self.assertEqual(data[1], reader[1])
+            self.assertEqual(data[-1], reader[-1])
+            self.assertEqual(data[5], reader[5])
 
             # check the whole thing
             np.testing.assert_array_equal(data[0:8:2], reader[0:8:2])

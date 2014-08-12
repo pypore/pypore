@@ -62,7 +62,7 @@ class ChimeraReader(AbstractReader):
 
         # if we are dealing with a single integer, just return it
         if n_points == 1:
-            values = np.fromfile(self.datafile, CHIMERA_DATA_TYPE, n_points)
+            values = np.fromfile(self.datafile, CHIMERA_DATA_TYPE, n_points)[0]
         elif steps[0] == 1:
             # if the step size is 1, do normal read
             values = np.fromfile(self.datafile, CHIMERA_DATA_TYPE, n_points)
