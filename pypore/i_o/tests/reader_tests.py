@@ -133,6 +133,12 @@ class ReaderTests(object):
             # the idea is that if test_get_all_data works, this should work.
             data = reader[:]
 
+            # test immutability
+            xdata = reader[:]
+            xdata += 1.2
+            np.testing.assert_array_less(data, xdata)
+            del xdata
+
             # check starting points
             np.testing.assert_array_equal(data[0:], reader[0:])
             np.testing.assert_array_equal(data[3:], reader[3:])
