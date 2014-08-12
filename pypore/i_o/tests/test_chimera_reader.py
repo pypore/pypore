@@ -55,8 +55,3 @@ class TestChimeraReader(unittest.TestCase, ReaderTests):
         filename2 = tf.get_abs_path('chimera_1event.log')
         filename3 = tf.get_abs_path('chimera_1event_2levels.log')
         return [filename, filename2, filename3]
-
-
-if __name__ == "__main__":
-    unittest.main()
-
