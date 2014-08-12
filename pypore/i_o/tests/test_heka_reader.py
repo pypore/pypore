@@ -27,3 +27,18 @@ class TestHekaReader(unittest.TestCase, ReaderTests):
         filename = tf.get_abs_path('heka_1.5s_mean5.32p_std2.76p.hkd')
         shape = (75000,)
         return [filename], [shape]
+
+    def test_chunk_size(self):
+        """
+        Tests that we cannot change the chunk size
+        :return:
+        """
+        filename = tf.get_abs_path('heka_1.5s_mean5.32p_std2.76p.hkd')
+        reader = self.reader_class(filename)
+
+        self.assertEqual(reader.chunk_size, reader._chunk_size)
+
+        def set_chunk(chunk):
+            reader.chunk_size = chunk
+
+        self.assertRaises(AttributeError, set_chunk, 100)
