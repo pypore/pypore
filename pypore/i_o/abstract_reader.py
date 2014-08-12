@@ -20,7 +20,7 @@ class AbstractReader(object):
 
     # _chunk_size can be used by subclasses when lazy loading data
     # default is ~100kB of 64 bit floating points
-    _chunk_size = 12500
+    _chunk_size = 12500 # units are datapoints
 
     @property
     def chunk_size(self):
