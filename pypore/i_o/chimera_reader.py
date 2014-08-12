@@ -75,7 +75,7 @@ class ChimeraReader(AbstractReader):
             count = 0
             while count < n_points:
                 # Compute the chunk size of stuff needed
-                chunk = np.fromfile(self.datafile, CHIMERA_DATA_TYPE, self.chunk_size)
+                chunk = np.fromfile(self.datafile, CHIMERA_DATA_TYPE, self._chunk_size)
                 real_chunk_size = chunk.size
 
                 chunk = chunk[remainder::step_size]

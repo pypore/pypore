@@ -18,9 +18,13 @@ class AbstractReader(object):
     # extra fields specific to readers should be accessible from
     metadata = None
 
-    # chunk_size can be used by subclasses when lazy loading data
+    # _chunk_size can be used by subclasses when lazy loading data
     # default is ~100kB of 64 bit floating points
-    chunk_size = 12500
+    _chunk_size = 12500
+
+    @property
+    def chunk_size(self):
+        return self._chunk_size
 
     def __init__(self, filename):
         """
