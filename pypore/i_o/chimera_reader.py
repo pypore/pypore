@@ -20,7 +20,8 @@ except NameError:
 
 class ChimeraReader(AbstractReader):
     """
-    Reader class that reads .log files (with corresponding .mat files) produced by the Chimera acquisition software at UPenn.
+    Reader class that reads .log files (with corresponding .mat files) produced by the Chimera acquisition software
+    at UPenn.
     """
     specs_file = None
 
@@ -78,7 +79,7 @@ class ChimeraReader(AbstractReader):
 
         # if we are dealing with a single integer, just return it
         if n_points == 1:
-            values = np.fromfile(self.datafile, CHIMERA_DATA_TYPE, n_points)[0]
+            values = np.fromfile(self.datafile, CHIMERA_DATA_TYPE, n_points)
         elif step_size == 1:
             # if the step size is 1, do normal read
             values = np.fromfile(self.datafile, CHIMERA_DATA_TYPE, n_points)
@@ -107,18 +108,22 @@ class ChimeraReader(AbstractReader):
         if negative_step:
             values = values[::-1]
 
+        if n_points == 1:
+            return values[0]
+
         return values
 
     def _scale_raw_chimera(self, values):
         """
         Scales the raw chimera data to correct scaling.
+
+        :param values: numpy array of Chimera values. (raw <u2 datatype)
+        :returns: Array of scaled Chimera values (np.float datatype)
         """
         values &= self.bit_mask
-        values = -self.adc_v_ref + (2 * self.adc_v_ref) * values / (2 ** 16)
-        # Extra scaling for the log data.
-        values /= (self.pre_adc_gain * self.tia_gain)
-        values += self.current_offset
-        values *= 1.e9
+        values = values.astype(np.float, copy=False)
+        values *= self.scale_multiplication
+        values += self.scale_addition
 
         return values
 
@@ -151,3 +156,8 @@ class ChimeraReader(AbstractReader):
         self.bit_mask = (2 ** 16) - 1 - (2 ** (16 - self.adc_bits) - 1)
 
         self.sample_rate = 1.0 * self.specs_file['SETUP_ADCSAMPLERATE'][0][0]
+
+        # calculate the scaling factor from raw data
+        self.scale_multiplication = 1.e9 * (2 * self.adc_v_ref / 2 ** 16) / (self.pre_adc_gain * self.tia_gain)
+        self.scale_addition = 1.e9 * (self.current_offset - self.adc_v_ref / (self.pre_adc_gain * self.tia_gain))
+
