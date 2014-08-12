@@ -17,7 +17,6 @@ class TestUtil(unittest.TestCase):
         self.assertEqual(process_range(0, None, None, length), (0, length, 1))
         self.assertEqual(process_range(1, None, None, length), (1, length, 1))
         self.assertEqual(process_range(None, None, 2, length), (0, length, 2))
-        self.assertEqual(process_range(None, None, -1, length), (0, length, -1))
 
         # out of bounds
         self.assertEqual(process_range(None, 1000000, None, length), (0, length, 1))
@@ -30,6 +29,13 @@ class TestUtil(unittest.TestCase):
         # Negatives out of bounds
         self.assertEqual(process_range(-5000, None, None, length), (0, length, 1))
         self.assertEqual(process_range(None, -10000, None, length), (0, 0, 1))
+
+        # Negatives steps
+        self.assertEqual(process_range(None, None, -1, length), (length-1, -1, -1))
+        self.assertEqual(process_range(5, 2, -1, 10), (5, 2, -1))
+        self.assertEqual(process_range(-1, -4, -1, 10), (9, 6, -1))
+        self.assertEqual(process_range(-1, -100, -1, 10), (9, -1, -1))
+        self.assertEqual(process_range(999, None, -1, 10), (9, -1, -1))
 
         # Errors
         self.assertRaises(ValueError, process_range, None, None, 0, length)

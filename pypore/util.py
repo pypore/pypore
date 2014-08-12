@@ -34,20 +34,28 @@ def process_range(start, stop, step, length):
         raise ValueError("Step cannot be 0.")
 
     if start is None:
-        start = 0
+        if step > 0:
+            start = 0
+        else:
+            start = length - 1
     elif start < 0:
         start += length
     if start < 0:
         start = 0
     if start > length:
-        start = length
+        start = length - 1
 
-    if stop is None or stop > length:
-        stop = length
-    if stop < 0:
+    if stop is None:
+        if step > 0:
+            stop = length
+        else:
+            stop = -1
+    elif stop < 0:
         stop += length
-    if stop < 0:
-        stop = 0
+        if stop < 0:
+            stop = -1 if step < 0 else 0
+    elif stop > length:
+        stop = length
 
     return start, stop, step
 
