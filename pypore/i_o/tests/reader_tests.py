@@ -154,10 +154,18 @@ class ReaderTests(object):
             self.assertEqual(data[-1], reader[-1])
             self.assertEqual(data[5], reader[5])
 
+            # check negative step sizes
+            np.testing.assert_array_equal(data[::-1], reader[::-1])
+            np.testing.assert_array_equal(data[::-2], reader[::-2])
+            np.testing.assert_array_equal(data[::-3], reader[::-3])
+            np.testing.assert_array_equal(data[::-5], reader[::-5])
+
             # check the whole thing
             np.testing.assert_array_equal(data[0:8:2], reader[0:8:2])
             np.testing.assert_array_equal(data[1:9:3], reader[1:9:3])
             np.testing.assert_array_equal(data[-8:-1:-1], reader[-8:-1:-1])
+            np.testing.assert_array_equal(data[9:1:-1], reader[9:1:-1])
+            np.testing.assert_array_equal(data[9:1:-4], reader[9:1:-4])
 
             reader.close()
 
