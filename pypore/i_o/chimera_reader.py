@@ -55,19 +55,34 @@ class ChimeraReader(AbstractReader):
     def get_data_from_selection(self, starts, stops, steps, shape):
         # for chimera, we just need one channel
 
-        # go to the start of the shape
-        self.datafile.seek(starts[0] * CHIMERA_DATA_TYPE.itemsize)
+        # how expensive is using this here?
+        my_range = xrange(starts[0], stops[0], steps[0])
 
-        n_points = len(xrange(starts[0], stops[0], steps[0]))
+        n_points = len(my_range)
+        if n_points == 0:
+            return np.array([])
+
+        # if the step size is < 0, we need to figure out what the first point actually is
+        if steps[0] > 0:
+            start = starts[0]
+            stop = stops[0]
+            negative_step = False
+        else:
+            start = my_range[-1]
+            stop = my_range[0]
+            negative_step = True
+        step_size = abs(steps[0])
+
+        # go to the start of the shape
+        self.datafile.seek(start * CHIMERA_DATA_TYPE.itemsize)
 
         # if we are dealing with a single integer, just return it
         if n_points == 1:
             values = np.fromfile(self.datafile, CHIMERA_DATA_TYPE, n_points)[0]
-        elif steps[0] == 1:
+        elif step_size == 1:
             # if the step size is 1, do normal read
             values = np.fromfile(self.datafile, CHIMERA_DATA_TYPE, n_points)
         else:
-            step_size = steps[0]
             values = np.empty(shape=(n_points,), dtype=CHIMERA_DATA_TYPE)
             # otherwise, read is a little more complicated.
 
@@ -89,6 +104,8 @@ class ChimeraReader(AbstractReader):
 
         # scale the values
         values = self._scale_raw_chimera(values)
+        if negative_step:
+            values = values[::-1]
 
         return values
 
