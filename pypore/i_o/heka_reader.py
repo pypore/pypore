@@ -96,14 +96,14 @@ class HekaReader(AbstractReader):
         self.datafile = open(filename, 'rb')
 
         # Check that the first line is as expected
-        line = self.datafile.readline()
+        line = self.datafile.readline().decode()
         if not 'Nanopore Experiment Data File V2.0' in line:
             self.datafile.close()
             raise IOError('Heka data file format not recognized.')
 
         # Just skip over the file header text, should be always the same.
         while True:
-            line = self.datafile.readline()
+            line = self.datafile.readline().decode()
             if 'End of file format' in line:
                 break
 
@@ -194,7 +194,9 @@ class HekaReader(AbstractReader):
         num_params = np.fromfile(self.datafile, dt, 1)[0]
         for _ in xrange(0, num_params):
             type_code = np.fromfile(self.datafile, dt, 1)[0]
-            name = np.fromfile(self.datafile, datatype, 1)[0].strip()
+            # read the name this way, because numpy and python 3 together
+            # don't naturally decode strings.
+            name = self.datafile.read(datatype.itemsize).decode('utf-8').strip()
             param_list.append([name, HEKA_ENCODINGS[type_code]])
         return param_list
 
