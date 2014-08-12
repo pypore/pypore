@@ -60,7 +60,7 @@ class ChimeraReader(AbstractReader):
 
         n_points = len(my_range)
         if n_points == 0:
-            return np.array([])
+            return np.zeros(0, dtype=CHIMERA_DATA_TYPE)
 
         # if the step size is < 0, we need to figure out what the first point actually is
         if steps[0] > 0:
