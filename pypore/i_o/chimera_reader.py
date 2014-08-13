@@ -7,9 +7,10 @@ from pypore.i_o.abstract_reader import AbstractReader
 
 
 # ctypedef np.float_t DTYPE_t
-from pypore.util import interpret_indexing
 
 CHIMERA_DATA_TYPE = np.dtype('<u2')
+# mantissa is 23 bits for np.float32, well above 16 bit from raw
+CHIMERA_OUTPUT_DATA_TYPE = np.float32
 
 # Stupid python 3, dropping xrange....
 try:
@@ -47,71 +48,7 @@ class ChimeraReader(AbstractReader):
         :param item:
         :return:
         """
-        # first we have to interpret the selection
-        starts, stops, steps, shape = interpret_indexing(item, self.shape)
-
-        # get the data for the selection
-        return self.get_data_from_selection(starts, stops, steps, shape)
-
-    def get_data_from_selection(self, starts, stops, steps, shape):
-        # for chimera, we just need one channel
-
-        # how expensive is using this here?
-        my_range = xrange(starts[0], stops[0], steps[0])
-
-        n_points = len(my_range)
-        if n_points == 0:
-            return np.zeros(0, dtype=CHIMERA_DATA_TYPE)
-
-        # if the step size is < 0, we need to figure out what the first point actually is
-        if steps[0] > 0:
-            start = starts[0]
-            stop = stops[0]
-            negative_step = False
-        else:
-            start = my_range[-1]
-            stop = my_range[0]
-            negative_step = True
-        step_size = abs(steps[0])
-
-        # go to the start of the shape
-        self.datafile.seek(start * CHIMERA_DATA_TYPE.itemsize)
-
-        # if we are dealing with a single integer, just return it
-        if n_points == 1:
-            values = np.fromfile(self.datafile, CHIMERA_DATA_TYPE, n_points)
-        elif step_size == 1:
-            # if the step size is 1, do normal read
-            values = np.fromfile(self.datafile, CHIMERA_DATA_TYPE, n_points)
-        else:
-            values = np.empty(shape=(n_points,), dtype=CHIMERA_DATA_TYPE)
-            # otherwise, read is a little more complicated.
-
-            remainder = 0
-            count = 0
-            while count < n_points:
-                # Compute the chunk size of stuff needed
-                chunk = np.fromfile(self.datafile, CHIMERA_DATA_TYPE, self._chunk_size)
-                real_chunk_size = chunk.size
-
-                chunk = chunk[remainder::step_size]
-                chunk_size = chunk.size
-                if (n_points - count) < chunk_size:
-                    chunk = chunk[:n_points - count]
-                    chunk_size = chunk.size
-                values[count:count + chunk_size] = chunk[:]
-                remainder = (remainder + step_size - real_chunk_size) % step_size
-                count += chunk_size
-
-        # scale the values
-        values = self._scale_raw_chimera(values)
-        if negative_step:
-            values = values[::-1]
-
-        if n_points == 1:
-            return values[0]
-
-        return values
+        return self._scale_raw_chimera(np.array(self.memmap[item]))
 
     def _scale_raw_chimera(self, values):
         """
@@ -121,7 +58,7 @@ class ChimeraReader(AbstractReader):
         :returns: Array of scaled Chimera values (np.float datatype)
         """
         values &= self.bit_mask
-        values = values.astype(np.float, copy=False)
+        values = values.astype(CHIMERA_OUTPUT_DATA_TYPE, copy=False)
         values *= self.scale_multiplication
         values += self.scale_addition
 
@@ -153,11 +90,16 @@ class ChimeraReader(AbstractReader):
         self.tia_gain = self.specs_file['SETUP_TIAgain'][0][0]
         self.pre_adc_gain = self.specs_file['SETUP_preADCgain'][0][0]
 
-        self.bit_mask = (2 ** 16) - 1 - (2 ** (16 - self.adc_bits) - 1)
+        self.bit_mask = np.array((2 ** 16) - 1 - (2 ** (16 - self.adc_bits) - 1), dtype=CHIMERA_DATA_TYPE)
 
         self.sample_rate = 1.0 * self.specs_file['SETUP_ADCSAMPLERATE'][0][0]
 
         # calculate the scaling factor from raw data
-        self.scale_multiplication = 1.e9 * (2 * self.adc_v_ref / 2 ** 16) / (self.pre_adc_gain * self.tia_gain)
-        self.scale_addition = 1.e9 * (self.current_offset - self.adc_v_ref / (self.pre_adc_gain * self.tia_gain))
+        self.scale_multiplication = np.array(
+            1.e9 * (2 * self.adc_v_ref / 2 ** 16) / (self.pre_adc_gain * self.tia_gain), dtype=CHIMERA_OUTPUT_DATA_TYPE)
+        self.scale_addition = np.array(1.e9 * (self.current_offset - self.adc_v_ref / (self.pre_adc_gain * self.tia_gain)), dtype=CHIMERA_OUTPUT_DATA_TYPE)
+
+        # Use numpy memmap. Note this will fail for files > 4GB on 32 bit systems.
+        # If you run into this, a more extreme lazy loading solution will be needed.
+        self.memmap = np.memmap(self.datafile, dtype=CHIMERA_DATA_TYPE, mode='r', shape=self.shape)
 
