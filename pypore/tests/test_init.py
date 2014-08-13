@@ -13,13 +13,13 @@ class TestInit(unittest.TestCase):
         """
         # Chimera file
         filename = tf.get_abs_path('spheres_20140114_154938_beginning.log')
-        f = pypore.open(filename)
+        f = pypore.open_file(filename)
         self.assertTrue(isinstance(f, ChimeraReader))
         f.close()
 
         # Heka file
         filename = tf.get_abs_path('heka_1.5s_mean5.32p_std2.76p.hkd')
-        f = pypore.open(filename)
+        f = pypore.open_file(filename)
         self.assertTrue(isinstance(f, HekaReader))
         f.close()
 
@@ -28,7 +28,7 @@ class TestInit(unittest.TestCase):
         Tests that opening a file based on extension when a reader doesn't exist for that extension will result in a
         ValueError.
         """
-        self.assertRaises(ValueError, pypore.open, 'this_extension_does_not_exist.rollercoaster')
+        self.assertRaises(ValueError, pypore.open_file, 'this_extension_does_not_exist.rollercoaster')
 
     def test_open_file_with_reader_class(self):
         """
@@ -36,13 +36,13 @@ class TestInit(unittest.TestCase):
         """
         # Chimera file
         filename = tf.get_abs_path('spheres_20140114_154938_beginning.log')
-        f = pypore.open(filename, ChimeraReader)
+        f = pypore.open_file(filename, ChimeraReader)
         f.close()
         self.assertTrue(isinstance(f, ChimeraReader))
 
         # Heka file
         filename = tf.get_abs_path('heka_1.5s_mean5.32p_std2.76p.hkd')
-        f = pypore.open(filename)
+        f = pypore.open_file(filename)
         f.close()
         self.assertTrue(isinstance(f, HekaReader))
 
@@ -50,5 +50,5 @@ class TestInit(unittest.TestCase):
         # Aka that the reader_class we pass in is actually used.
         filename = tf.get_abs_path('heka_1.5s_mean5.32p_std2.76p.hkd')
         # Heka files should produce an error when being ready by ChimeraReader.
-        self.assertRaises(IOError, pypore.open, filename, ChimeraReader)
+        self.assertRaises(IOError, pypore.open_file, filename, ChimeraReader)
 

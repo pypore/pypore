@@ -1,4 +1,4 @@
-def open(filename, reader_class=None):
+def open_file(filename, reader_class=None):
     """
     Opens a read only, raw current data file of one of the following formats:
 
