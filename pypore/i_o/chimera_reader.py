@@ -96,8 +96,9 @@ class ChimeraReader(AbstractReader):
 
         # calculate the scaling factor from raw data
         self.scale_multiplication = np.array(
-            1.e9 * (2 * self.adc_v_ref / 2 ** 16) / (self.pre_adc_gain * self.tia_gain), dtype=CHIMERA_OUTPUT_DATA_TYPE)
-        self.scale_addition = np.array(1.e9 * (self.current_offset - self.adc_v_ref / (self.pre_adc_gain * self.tia_gain)), dtype=CHIMERA_OUTPUT_DATA_TYPE)
+            (2 * self.adc_v_ref / 2 ** 16) / (self.pre_adc_gain * self.tia_gain), dtype=CHIMERA_OUTPUT_DATA_TYPE)
+        self.scale_addition = np.array(self.current_offset - self.adc_v_ref / (self.pre_adc_gain * self.tia_gain),
+                                       dtype=CHIMERA_OUTPUT_DATA_TYPE)
 
         # Use numpy memmap. Note this will fail for files > 4GB on 32 bit systems.
         # If you run into this, a more extreme lazy loading solution will be needed.

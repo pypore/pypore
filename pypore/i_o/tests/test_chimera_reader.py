@@ -31,8 +31,8 @@ class TestChimeraReader(unittest.TestCase, ReaderTests):
 
     def _test_small_chimera_file_help(self, data):
         self.assertEqual(data.size, 10, 'Wrong data size returned.')
-        self.assertAlmostEqual(data[0], 17.45518, 3)
-        self.assertAlmostEqual(data[9], 18.0743, 3)
+        self.assertAlmostEqual(data[0], 17.45518e-9, 3)
+        self.assertAlmostEqual(data[9], 18.0743e-9, 3)
 
     def help_sample_rate(self):
         filename = tf.get_abs_path('spheres_20140114_154938_beginning.log')
@@ -46,8 +46,8 @@ class TestChimeraReader(unittest.TestCase, ReaderTests):
 
     def help_scaling(self):
         filename = tf.get_abs_path('spheres_20140114_154938_beginning.log')
-        mean_should_be = 7.57604  # Value gotten from original MATLAB script
-        std_should_be = 1.15445  # Value gotten from original MATLAB script
+        mean_should_be = 7.57604e-9  # Value gotten from original MATLAB script
+        std_should_be = 1.15445e-9  # Value gotten from original MATLAB script
         return [filename], [mean_should_be], [std_should_be]
 
     def help_slicing(self):
