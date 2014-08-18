@@ -6,6 +6,10 @@ def open_file(filename, reader_class=None):
         #. Heka files. See implementations in :py:mod:`pypore.i_o.heka_reader`
 
     To implement your own reader, extend :py:class:`pypore.i_o.abstract_reader.AbstractReader`.
+
+    To test your own reader, override unittest and :py:class:`pypore.i_o.tests.reader_tests.ReaderTests`. See
+    :py:mod:`pypore.i_o.tests.test_chimera_reader` as an example.
+
     :param filename: Filename to open.
     :param reader_class: (Optional) A reader class to be used to read the filename. If None, a reader class will be
     chosen based on the file extension.
