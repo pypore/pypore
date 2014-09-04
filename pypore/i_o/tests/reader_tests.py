@@ -18,7 +18,33 @@ class ReaderTests(object):
     #. :py:func:`help_scaling_decimated`
 
     """
+    # Class of the Reader that the subclass of ReaderTests is trying to test. Subclasses of ReaderTests **must** set
+    # this field.
     reader_class = None
+
+    # List of filenames to use for generic Reader tests. Subclasses **must** set this field.
+    default_test_data_files = None
+
+    def test_default_test_data_files(self):
+        """
+        Tests that subclasses of ReaderTests have set the default_test_data_files field to a list of length at least 1.
+        """
+        self.assertIsNotNone(self.default_test_data_files,
+                             "Subclass {0} of ReaderTests must set self.default_test_data_files to a list of test "
+                             "data filenames.".format(
+                                 self.__class__.__name__))
+        self.assertFalse(len(self.default_test_data_files) < 1,
+                         "length of self.default_test_data_files in {0} is < 1. Please add files to this list.".format(
+                             self.__class__.__name__))
+
+    def test_reader_class_set(self):
+        """
+        Tests that subclasses of ReaderTests have set the reader_tests field.
+        """
+        self.assertIsNotNone(self.reader_class,
+                             "Subclasses {0} of ReaderTests must set self.reader_class to a Reader so the Reader can "
+                             "be tested.".format(
+                                 self.__class__.__name__))
 
     def test_non_existing_file_raises(self):
         self.assertRaises(IOError, self.reader_class, 'this_file_does_not_exist.nope')
