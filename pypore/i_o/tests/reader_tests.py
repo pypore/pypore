@@ -36,11 +36,13 @@ class ReaderTests(object):
             reader = self.reader_class(filename)
 
             sample_rate = reader.sample_rate
-            sample_rate_diff = np.abs(sample_rate - sample_rate_should_be)/sample_rate_should_be
+            sample_rate_diff = np.abs(sample_rate - sample_rate_should_be) / sample_rate_should_be
             reader.close()
 
-
-            self.assertTrue(sample_rate_diff <= 0.05, "Sample rate read wrong from {0}. Should be {1}, got {2}.".format(filename, sample_rate_should_be, sample_rate))
+            self.assertTrue(sample_rate_diff <= 0.05,
+                            "Sample rate read wrong from {0}. Should be {1}, got {2}.".format(filename,
+                                                                                              sample_rate_should_be,
+                                                                                              sample_rate))
 
     def help_sample_rate(self):
         """
@@ -65,6 +67,8 @@ class ReaderTests(object):
             reader = self.reader_class(filename)
 
             shape = reader.shape
+            self.assertEqual(shape_should_be, shape,
+                             "Shape wrong for {0}. Was {1}. Should be {2}.".format(filename, shape, shape_should_be))
             reader.close()
 
     def help_shape(self):
@@ -97,15 +101,15 @@ class ReaderTests(object):
 
             mean_diff = abs((mean - mean_should_be) / mean_should_be)
             self.assertTrue(mean_diff <= 0.05,
-                                 "Data mean in '{0}' scaled wrong. "
-                                 "Should be {1}, got {2}.".format(filename, mean_should_be, mean))
+                            "Data mean in '{0}' scaled wrong. "
+                            "Should be {1}, got {2}.".format(filename, mean_should_be, mean))
 
             std_dev = np.std(data)
 
             std_diff = abs((std_dev - std_dev_should_be) / std_dev_should_be)
             self.assertTrue(std_diff <= 0.05,
-                                 "Baseline in '{0}' scaled wrong. "
-                                 "Should be {1}, got {2}.".format(filename, std_dev_should_be, std_dev))
+                            "Baseline in '{0}' scaled wrong. "
+                            "Should be {1}, got {2}.".format(filename, std_dev_should_be, std_dev))
 
     def help_scaling(self):
         """
@@ -126,7 +130,6 @@ class ReaderTests(object):
         file_names = self.help_slicing()
 
         for filename in file_names:
-
             reader = self.reader_class(filename)
 
             # get all the data first, to compare the slicing.
