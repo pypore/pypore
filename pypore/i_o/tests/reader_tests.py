@@ -29,7 +29,7 @@ class ReaderTests(object):
         """
         Tests that subclasses of ReaderTests have set the default_test_data_files field to a list of length at least 1.
         """
-        self.assertIsNotNone(self.default_test_data_files,
+        self.assertFalse(self.default_test_data_files is None,
                              "Subclass {0} of ReaderTests must set self.default_test_data_files to a list of test "
                              "data filenames.".format(
                                  self.__class__.__name__))
@@ -41,7 +41,7 @@ class ReaderTests(object):
         """
         Tests that subclasses of ReaderTests have set the reader_tests field.
         """
-        self.assertIsNotNone(self.reader_class,
+        self.assertFalse(self.reader_class is None,
                              "Subclasses {0} of ReaderTests must set self.reader_class to a Reader so the Reader can "
                              "be tested.".format(
                                  self.__class__.__name__))
