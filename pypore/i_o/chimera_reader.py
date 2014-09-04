@@ -77,8 +77,6 @@ class ChimeraReader(AbstractReader):
             raise IOError(
                 "Error opening " + filename + ", Chimera .mat specs file of same name must be located in same folder.")
 
-        self.datafile = open(filename, 'rb')
-
         # Calculate number of points per channel
         file_size = os.path.getsize(filename)
         points_per_channel_total = file_size / CHIMERA_DATA_TYPE.itemsize
@@ -102,5 +100,7 @@ class ChimeraReader(AbstractReader):
 
         # Use numpy memmap. Note this will fail for files > 4GB on 32 bit systems.
         # If you run into this, a more extreme lazy loading solution will be needed.
-        self.memmap = np.memmap(self.datafile, dtype=CHIMERA_DATA_TYPE, mode='r', shape=self.shape)
+        self.memmap = np.memmap(filename, dtype=CHIMERA_DATA_TYPE, mode='r', shape=self.shape)
 
+    def close(self):
+        del self.memmap

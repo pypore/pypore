@@ -227,3 +227,6 @@ class HekaReader(AbstractReader):
             else:
                 return None
         return params
+
+    def close(self):
+        self.datafile.close()
