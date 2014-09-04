@@ -7,6 +7,7 @@ import pypore.sampledata.testing_files as tf
 
 class TestHekaReader(unittest.TestCase, ReaderTests):
     reader_class = HekaReader
+    default_test_data_files = [tf.get_abs_path('heka_1.5s_mean5.32p_std2.76p.hkd')]
 
     def help_scaling(self):
         filename = tf.get_abs_path('heka_1.5s_mean5.32p_std2.76p.hkd')
