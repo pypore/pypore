@@ -6,9 +6,6 @@ class AbstractReader(object):
     This is an abstract class showing the methods that subclasses must override.
 
     """
-    # fields common to every Reader
-    datafile = None
-
     sample_rate = None
     shape = None
 
@@ -20,7 +17,8 @@ class AbstractReader(object):
 
     # _chunk_size can be used by subclasses when lazy loading data
     # default is ~100kB of 64 bit floating points
-    _chunk_size = 12500 # units are datapoints
+    # units are datapoints
+    _chunk_size = 12500
 
     @property
     def chunk_size(self):
@@ -50,7 +48,7 @@ class AbstractReader(object):
 
         Subclasses should open a data file as
 
-        >>> self.datafile = open(filename, 'r or rb or whatever')
+        >>> .datafile = open('test.log', 'r or rb or whatever')
 
         Additionally, subclasses should initialize the following data:
 
@@ -67,4 +65,4 @@ class AbstractReader(object):
 
         Closes the file and the reader.
         """
-        self.datafile.close()
+        raise NotImplementedError
