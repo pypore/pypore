@@ -212,3 +212,10 @@ class ReaderTests(object):
             #. list of filenames to test
         """
         raise NotImplementedError('Inheritors should override this method.')
+
+    def test_close(self):
+        """
+        Tests that subclasses of AbstractReader have implemented close.
+        """
+        reader = self.reader_class(self.default_test_data_files[0])
+        reader.close()
