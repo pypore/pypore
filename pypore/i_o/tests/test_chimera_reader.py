@@ -41,7 +41,7 @@ class TestChimeraReader(unittest.TestCase, ReaderTests):
 
     def help_shape(self):
         filename = tf.get_abs_path('spheres_20140114_154938_beginning.log')
-        shape_should_be = (10,)
+        shape_should_be = (102400,)
         return [filename], [shape_should_be]
 
     def help_scaling(self):
