@@ -85,6 +85,60 @@ class TestSegment(unittest.TestCase):
         self.assertEqual(mean_should_be, mean_was, "Mean of Segment incorrect on second try. Should be {0}. Was {"
                                                    "1}.".format(mean_should_be, mean_was))
 
+    def test_min(self):
+        """
+        Tests that the min method works, that before it's called the _min field is None, and after it's called the
+        _min field is the min of the segment.
+        """
+        array = np.random.random(100)
+
+        s = Segment(array)
+
+        self.assertTrue(s._min is None, "The _min field of Segment should be None before the user requests the min.")
+
+        min_should_be = array.min()
+
+        min_was = s.min()
+
+        self.assertEqual(min_should_be, min_was, "Min of Segment incorrect. Should be {0}. Was {1}.".format(
+            min_should_be, min_was))
+
+        # Make sure s._min has been set.
+        self.assertEqual(s._min, min_should_be, "Segment._min should be set after the user calls .min().")
+
+        min_was = s.min()
+
+        # Check the min again, just to be safe
+        self.assertEqual(min_should_be, min_was, "Min of Segment incorrect on second try. Should be {0}. Was {"
+                                                 "1}.".format(min_should_be, min_was))
+
+    def test_max(self):
+        """
+        Tests that the max method works, that before it's called the _max field is None, and after it's called the
+        _max field is the max of the segment.
+        """
+        array = np.random.random(100)
+
+        s = Segment(array)
+
+        self.assertTrue(s._max is None, "The _max field of Segment should be None before the user requests the max.")
+
+        max_should_be = array.max()
+
+        max_was = s.max()
+
+        self.assertEqual(max_should_be, max_was, "Max of Segment incorrect. Should be {0}. Was {1}.".format(
+            max_should_be, max_was))
+
+        # Make sure s._max has been set.
+        self.assertEqual(s._max, max_should_be, "Segment._max should be set after the user calls .max().")
+
+        max_was = s.max()
+
+        # Check the max again, just to be safe
+        self.assertEqual(max_should_be, max_was, "Max of Segment incorrect on second try. Should be {0}. Was {"
+                                                 "1}.".format(max_should_be, max_was))
+
     def test_size(self):
         """
         Test that size returns the correct size of the Segment.
