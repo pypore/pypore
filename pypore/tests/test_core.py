@@ -36,6 +36,7 @@ class TestSegment(unittest.TestCase):
         # use np.array(s[slice]) so np.testing comparisons work.
 
         # Regular slices
+        np.testing.assert_array_equal(array, np.array(s))
         np.testing.assert_array_equal(array[:], np.array(s[:]))
         np.testing.assert_array_equal(array[:19], np.array(s[:19]))
         np.testing.assert_array_equal(array[55:], np.array(s[55:]))
@@ -57,6 +58,42 @@ class TestSegment(unittest.TestCase):
         np.testing.assert_array_equal(array[1:15][:10:2], np.array(s[1:15][:10:2]))
         np.testing.assert_array_equal(array[-1:][:], np.array(s[-1:][:]))
         np.testing.assert_array_equal(array[:][:][:], np.array(s[:][:][:]))
+
+    def test_list(self):
+        """
+        Tests that we can pass in a list to Segment.
+        """
+        l = [1, 2, 3, 4, 5, 6]
+
+        s = Segment(l)
+
+        self.assertEqual(len(l), len(s))
+        self.assertEqual(len(l), s.size)
+
+        # TODO add tests for slicing list, mean, max, etc.
+
+    def test_slice_attributes(self):
+        """
+        Tests that a sliced Segment has the correct attributes/method returns, like max, min etc.
+        """
+        array = np.random.random(100)
+
+        sample_rate = 1.e6
+        s = Segment(array, sample_rate)
+
+        array_slices = [array[:], array[:50], array[:75][20:]]
+        s_slices = [s[:], s[:50], s[:75][20:]]
+
+        for i, array_slice in enumerate(array_slices):
+            s_slice = s_slices[i]
+
+            self.assertEqual(array_slice.max(), s_slice.max())
+            self.assertEqual(array_slice.mean(), s_slice.mean())
+            self.assertEqual(array_slice.min(), s_slice.min())
+
+            self.assertEqual(sample_rate, s_slice.sample_rate)
+            self.assertEqual(array_slice.size, s_slice.size)
+            self.assertEqual(len(array_slice), len(s_slice))
 
     def test_mean(self):
         """
@@ -162,6 +199,19 @@ class TestSegment(unittest.TestCase):
         self.assertEqual(len(s), s.size, "Segment's length and size differ. Length {0}. Size {1}.".format(len(s),
                                                                                                           s.size))
 
+    def test_shape(self):
+        """
+        Test that Segment returns the correct shape.
+        """
+        array = np.random.random(100)
+
+        s = Segment(array)
+
+        s_shape = s.shape
+
+        self.assertEqual(array.shape, s_shape, "Segment shape incorrect. Should be {0}. Was {1}.".format(array.shape,
+                                                                                                         s_shape))
+
     def test_sample_rate(self):
         """
         Tests that the sample rate is set as the second argument. Tests that sample_rate can be None.
@@ -179,3 +229,14 @@ class TestSegment(unittest.TestCase):
 
         self.assertEqual(sample_rate, s2.sample_rate, "Segment's sample_rate incorrect. Should be {0}. Was {"
                                                       "1}".format(sample_rate, s2.sample_rate))
+
+    def test_iterable(self):
+        """
+        Tests that the object is iterable.
+        """
+        array = np.random.random(100)
+
+        s = Segment(array)
+
+        for i, point in enumerate(s):
+            self.assertEqual(array[i], point)
