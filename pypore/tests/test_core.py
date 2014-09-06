@@ -95,6 +95,35 @@ class TestSegment(unittest.TestCase):
             self.assertEqual(array_slice.size, s_slice.size)
             self.assertEqual(len(array_slice), len(s_slice))
 
+    def test_std(self):
+        """
+        Tests that the standard deviation method works, that before it's called the _std field is none,
+        and after it's called the _std field is the standard deviation.
+        """
+        array = np.random.random(100)
+
+        s = Segment(array)
+
+        self.assertTrue(s._std is None,
+                        "The _std field of Segment should be None before the user requests the the standard deviation.")
+
+        std_should_be = array.std()
+
+        std_was = s.std()
+
+        self.assertEqual(std_was, std_should_be,
+                         "Standard deviation of Segment was incorrect. Should be {0}. Was {1}.".format(std_should_be,
+                                                                                                       std_was))
+
+        self.assertEqual(s._std, std_should_be, "Segment._std should be set after the user calls .std().")
+
+        std_was = s.std()
+
+        # Check the std again, just to be safe.
+        self.assertEqual(std_was, std_should_be,
+                         "Standard deviation of Segment was incorrect on the second call. Should be {0}. Was {"
+                         "1}.".format(std_should_be, std_was))
+
     def test_mean(self):
         """
         Tests that the mean method works, that before it's called the _mean field is None, and after it's called the
@@ -240,3 +269,4 @@ class TestSegment(unittest.TestCase):
 
         for i, point in enumerate(s):
             self.assertEqual(array[i], point)
+

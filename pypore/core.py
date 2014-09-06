@@ -29,6 +29,7 @@ class Segment():
         * max - Returns the maximum value of the Segment.
         * mean - Returns the mean of the Segment.
         * min - Returns the minimum value in the Segment.
+        * std - Returns the standard deviation of the Segment.
 
     """
 
@@ -39,6 +40,7 @@ class Segment():
     _max = None
     _mean = None
     _min = None
+    _std = None
 
     def __array__(self):
         """
@@ -111,6 +113,15 @@ class Segment():
         if self._min is None:
             self._min = np.min(self._data)
         return self._min
+
+    def std(self):
+        """
+        :return: The standard deviation of the data.
+        """
+        # Cache the std deviation.
+        if self._std is None:
+            self._std = np.std(self._data)
+        return self._std
 
     @property
     def shape(self):
