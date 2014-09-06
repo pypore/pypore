@@ -263,10 +263,32 @@ class TestSegment(unittest.TestCase):
         """
         Tests that the object is iterable.
         """
-        array = np.random.random(100)
+        size = 100
+        array = np.random.random(size)
 
         s = Segment(array)
 
+        count = 0
+        i = 0
         for i, point in enumerate(s):
             self.assertEqual(array[i], point)
+            count += 1
 
+        # Make sure we looped through all of the correct i's
+        self.assertEqual(count, size,
+                         "enumerate(segment) did not loop through all elements. It looped through {0}/{1} "
+                         "elements.".format(count, size))
+        self.assertEqual(i, 99)
+
+        # Make sure we can loop through a second time with the same results.
+
+        count = 0
+        for i, point in enumerate(s):
+            self.assertEqual(array[i], point)
+            count += 1
+
+        # Make sure we looped through all of the correct i's
+        self.assertEqual(count, size,
+                         "enumerate(segment) did not loop through all elements On the second try. It looped through {"
+                         "0}/{1} elements.".format(count, size))
+        self.assertEqual(i, 99)

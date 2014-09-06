@@ -33,9 +33,6 @@ class Segment():
 
     """
 
-    # Iterator index
-    _index = 0
-
     # Cached values
     _max = None
     _mean = None
@@ -72,17 +69,7 @@ class Segment():
         return self.size
 
     def __iter__(self):
-        return self
-
-    def __next__(self):
-        if self._index >= self.size:
-            raise StopIteration
-        else:
-            self._index += 1
-            return self[self._index - 1]
-
-    def next(self):
-        return self.__next__()
+        return iter(self._data)
 
     def max(self):
         """
