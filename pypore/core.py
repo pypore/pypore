@@ -20,14 +20,16 @@ class Segment():
 
     Attributes:
 
-        * size - Number of datapoints in the Segment.
         * sample_rate - The sampling rate of the segment.
+        * shape - The shape of the data.
+        * size - Number of data points in the Segment.
 
     Methods:
 
         * max - Returns the maximum value of the Segment.
         * mean - Returns the mean of the Segment.
         * min - Returns the minimum value in the Segment.
+
     """
 
     # Iterator index
@@ -50,7 +52,8 @@ class Segment():
     def __init__(self, data, sample_rate=0.0):
         """
         Initialize a new Segment object with the passed in data.
-        :return:
+        :param data: Data defining the segment. Can pass in any data that is slice-able, like a numpy array, list, etc.
+        :param sample_rate: Sampling rate of the data, in Hz. Default is 0.0 Hz.
         """
         self._data = data
         self.sample_rate = sample_rate
@@ -111,14 +114,25 @@ class Segment():
 
     @property
     def shape(self):
+        """
+        Returns the shape of the Segment's data.
+        :return: The shape of the Segment's data.
+        """
         try:
+            # First try to get the shape of the data as if _data is a numpy array.
             shape = self._data.shape
             return shape
         except AttributeError:
+            # If not, just assume it's 1 dimensional.
+            # TODO fix getting dimension if we are passed a list, or a different data type. Might involve converting
+            # any data to a numpy array.
             return self.size,
 
     @property
     def size(self):
+        """
+        :return: The number of data points in the Segment.
+        """
         try:
             size = self._data.size
             return size
