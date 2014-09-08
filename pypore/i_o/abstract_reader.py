@@ -1,14 +1,11 @@
-import os
+from pypore.core import Segment
 
 
-class AbstractReader(object):
+class AbstractReader(Segment):
     """
     This is an abstract class showing the methods that subclasses must override.
 
     """
-    sample_rate = None
-    shape = None
-
     filename = None
     directory = None
 
@@ -24,7 +21,7 @@ class AbstractReader(object):
     def chunk_size(self):
         return self._chunk_size
 
-    def __init__(self, filename):
+    def __init__(self, *args, **kwargs):
         """
         Opens a data file, reads relevant parameters, and returns then open file and parameters.
 
@@ -32,32 +29,7 @@ class AbstractReader(object):
 
         If there was an error opening the files, params will have 'error' key with string description.
         """
-        self.filename = os.path.abspath(filename)
-        self.simplename = os.path.basename(self.filename)
-        self.directory = os.path.dirname(self.filename)
-        self.metadata = {}
-
-        self._prepare_file(filename)
-
-    def _prepare_file(self, filename):
-        """_prepare_file(filename)
-
-        Subclasses must override this method.
-
-        This method is called from the super class's __init__ method.
-
-        Subclasses should open a data file as
-
-        >>> .datafile = open('test.log', 'r or rb or whatever')
-
-        Additionally, subclasses should initialize the following data:
-
-        self.sample_rate
-        self.shape
-
-        :param StringType filename: Filename to open and read parameters.
-
-        """
+        super(AbstractReader, self).__init__(*args, **kwargs)
         raise NotImplementedError
 
     def close(self):
