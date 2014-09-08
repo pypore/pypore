@@ -1,3 +1,6 @@
+import numpy as np
+
+
 class SegmentTestData(object):
     """
     Data object holding sample data and corresponding attributes so SegmentTests can use it.
@@ -96,6 +99,25 @@ class SegmentTests(object):
             s3 = s[1]
             self.assertFalse(isinstance(s3, self.SEGMENT_CLASS),
                              "Single index of {0} should not be a {0} object.".format(self.SEGMENT_CLASS.__name__))
+
+    def test_convert_numpy_array(self):
+        """
+        Tests that we can convert Segment to a numpy array.
+        """
+        for test_data in self.default_test_data:
+            s = self.SEGMENT_CLASS(test_data.data)
+
+            arr = np.array(s)
+
+            self.assertEqual(s.size, arr.size)
+
+            self.assertEqual(s.shape, arr.shape)
+
+            for index, value in np.ndenumerate(arr):
+                s_value = s
+                for i in index:
+                    s_value = s_value[i]
+                self.assertEqual(value, s_value)
 
     def test_iterable(self):
         """
