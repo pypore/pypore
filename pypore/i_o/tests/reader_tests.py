@@ -1,172 +1,46 @@
 import numpy as np
 
+from pypore.tests.segment_tests import SegmentTests
 
-class ReaderTests(object):
+
+class ReaderTests(SegmentTests):
     """
     Other test classes for readers should inherit this class in addition to unittest.TestCase.
 
-    Subclasses **must** use multi-inheritance and also inherit from :py:class:`unittest.TestCase`.
-
-    The subclass **must** have a field 'reader_class' that is a subclass of
-    :py:class:`AbstractReader <pypore.i_o.abstract_reader.AbstractReader>`. For example::
-
-        self.reader_class = ChimeraReader
-
-    The subclasses also **must** override the following methods:
-
-    #. :py:func:`help_scaling`
-    #. :py:func:`help_scaling_decimated`
-
+    See :py:class:`pypore.tests.segment_tests.SegmentTests` for further details.
     """
-    # Class of the Reader that the subclass of ReaderTests is trying to test. Subclasses of ReaderTests **must** set
-    # this field.
-    reader_class = None
-
-    # List of filenames to use for generic Reader tests. Subclasses **must** set this field.
-    default_test_data_files = None
-
-    def test_default_test_data_files(self):
-        """
-        Tests that subclasses of ReaderTests have set the default_test_data_files field to a list of length at least 1.
-        """
-        self.assertFalse(self.default_test_data_files is None,
-                             "Subclass {0} of ReaderTests must set self.default_test_data_files to a list of test "
-                             "data filenames.".format(
-                                 self.__class__.__name__))
-        self.assertFalse(len(self.default_test_data_files) < 1,
-                         "length of self.default_test_data_files in {0} is < 1. Please add files to this list.".format(
-                             self.__class__.__name__))
-
-    def test_reader_class_set(self):
-        """
-        Tests that subclasses of ReaderTests have set the reader_tests field.
-        """
-        self.assertFalse(self.reader_class is None,
-                             "Subclasses {0} of ReaderTests must set self.reader_class to a Reader so the Reader can "
-                             "be tested.".format(
-                                 self.__class__.__name__))
 
     def test_non_existing_file_raises(self):
-        self.assertRaises(IOError, self.reader_class, 'this_file_does_not_exist.nope')
+        self.assertRaises(IOError, self.SEGMENT_CLASS, 'this_file_does_not_exist.nope')
 
     def test_sample_rate(self):
         """
         Tests that the sample rate is initialized properly.
         :return:
         """
-        file_names, sample_rates_should_be = self.help_sample_rate()
-
-        for i, filename in enumerate(file_names):
-            sample_rate_should_be = sample_rates_should_be[i]
-
-            reader = self.reader_class(filename)
+        for test_data in self.default_test_data:
+            reader = self.SEGMENT_CLASS(test_data.data)
 
             sample_rate = reader.sample_rate
-            sample_rate_diff = np.abs(sample_rate - sample_rate_should_be) / sample_rate_should_be
+            sample_rate_diff = np.abs(sample_rate - test_data.sample_rate) / test_data.sample_rate
             reader.close()
 
             self.assertTrue(sample_rate_diff <= 0.05,
-                            "Sample rate read wrong from {0}. Should be {1}, got {2}.".format(filename,
-                                                                                              sample_rate_should_be,
+                            "Sample rate read wrong from {0}. Should be {1}, got {2}.".format(test_data.data,
+                                                                                              test_data.sample_rate,
                                                                                               sample_rate))
-
-    def help_sample_rate(self):
-        """
-        Subclasses need to override this and return the following in order.
-        :return: The following, in order:
-
-        #. list of file names of the test files
-        #. list of corresponding sample rates
-
-        """
-        raise NotImplementedError
-
-    def test_shape(self):
-        """
-        Tests that the shape field is initialized properly.
-        """
-        file_names, shapes_should_be = self.help_shape()
-
-        for i, filename in enumerate(file_names):
-            shape_should_be = shapes_should_be[i]
-
-            reader = self.reader_class(filename)
-
-            shape = reader.shape
-            self.assertEqual(shape_should_be, shape,
-                             "Shape wrong for {0}. Was {1}. Should be {2}.".format(filename, shape, shape_should_be))
-            reader.close()
-
-    def help_shape(self):
-        """
-        Subclasses should override this and return the following.
-        :return: The following, in order:
-
-            #. list of file names to use as test files
-            #. list of the actual shapes of each file
-
-        """
-        raise NotImplementedError
-
-    def test_scaling(self):
-        """
-        Tests that the data is scaled correctly, from a known test file.
-        """
-        file_names, means_should_be, std_devs_should_be = self.help_scaling()
-
-        for i, filename in enumerate(file_names):
-            mean_should_be = means_should_be[i]
-            std_dev_should_be = std_devs_should_be[i]
-
-            reader = self.reader_class(filename)
-
-            data = reader[:]
-            reader.close()
-
-            mean = np.mean(data)
-
-            mean_diff = abs((mean - mean_should_be) / mean_should_be)
-            self.assertTrue(mean_diff <= 0.05,
-                            "Data mean in '{0}' scaled wrong. "
-                            "Should be {1}, got {2}.".format(filename, mean_should_be, mean))
-
-            std_dev = np.std(data)
-
-            std_diff = abs((std_dev - std_dev_should_be) / std_dev_should_be)
-            self.assertTrue(std_diff <= 0.05,
-                            "Baseline in '{0}' scaled wrong. "
-                            "Should be {1}, got {2}.".format(filename, std_dev_should_be, std_dev))
-
-    def help_scaling(self):
-        """
-        Subclasses should override this method and return the following, in the following order.
-        :returns: The following, in order:
-
-        #. list of file names of the test files.
-        #. list of known means of the data in the test files to check against the reader_class.
-        #. list of known standard deviations of the data to check against the reader_class.
-
-        """
-        raise NotImplementedError('Inheritors should override this method.')
 
     def test_slicing(self):
         """
         Tests that slicing works as expected.
         """
-        file_names = self.help_slicing()
 
-        for filename in file_names:
-            reader = self.reader_class(filename)
+        for test_data in self.default_test_data:
+            reader = self.SEGMENT_CLASS(test_data.data)
 
             # get all the data first, to compare the slicing.
             # the idea is that if test_get_all_data works, this should work.
             data = reader[:]
-
-            # test immutability
-            xdata = reader[:]
-            xdata += 1.2
-            np.testing.assert_array_less(data, xdata)
-            del xdata
 
             # check starting points
             np.testing.assert_array_equal(data[0:], reader[0:])
@@ -204,18 +78,9 @@ class ReaderTests(object):
 
             reader.close()
 
-    def help_slicing(self):
-        """
-        Subclasses should override this method.
-        :return: Subclasses should return the following, in order:
-
-            #. list of filenames to test
-        """
-        raise NotImplementedError('Inheritors should override this method.')
-
     def test_close(self):
         """
         Tests that subclasses of AbstractReader have implemented close.
         """
-        reader = self.reader_class(self.default_test_data_files[0])
+        reader = self.SEGMENT_CLASS(self.default_test_data[0].data)
         reader.close()
