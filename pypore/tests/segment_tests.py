@@ -125,33 +125,35 @@ class SegmentTests(object):
         """
         Tests that the object is iterable.
         """
-        for data in self.default_test_data:
-            s = self.SEGMENT_CLASS(data.data)
+        for test_data in self.default_test_data:
+            s = self.SEGMENT_CLASS(test_data.data)
+
+            data = s[:]
 
             count = 0
             i = 0
             for i, point in enumerate(s):
-                self.assertEqual(data.data[i], point)
+                self.assertEqual(data[i], point)
                 count += 1
 
             # Make sure we looped through all of the correct i's
-            self.assertEqual(count, data.size,
+            self.assertEqual(count, test_data.size,
                              "enumerate(segment) did not loop through all elements. It looped through {0}/{1} "
-                             "elements.".format(count, data.size))
-            self.assertEqual(i, data.size - 1)
+                             "elements.".format(count, test_data.size))
+            self.assertEqual(i, test_data.size - 1)
 
             # Make sure we can loop through a second time with the same results.
 
             count = 0
             for i, point in enumerate(s):
-                self.assertEqual(data.data[i], point)
+                self.assertEqual(data[i], point)
                 count += 1
 
             # Make sure we looped through all of the correct i's
-            self.assertEqual(count, data.size,
+            self.assertEqual(count, test_data.size,
                              "enumerate(segment) did not loop through all elements On the second try. It looped "
-                             "through {0}/{1} elements.".format(count, data.size))
-            self.assertEqual(i, data.size - 1)
+                             "through {0}/{1} elements.".format(count, test_data.size))
+            self.assertEqual(i, test_data.size - 1)
 
     def test_len(self):
         """
