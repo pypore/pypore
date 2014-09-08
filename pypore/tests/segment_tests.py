@@ -1,5 +1,7 @@
 import numpy as np
 
+from pypore.tests import pct_diff
+
 
 class SegmentTestData(object):
     """
@@ -178,19 +180,25 @@ class SegmentTests(object):
 
             std_was = s.std()
 
-            self.assertEqual(std_was, std_should_be,
-                             "Standard deviation of Segment was incorrect. Should be {0}. Was {1}.".format(
-                                 std_should_be,
-                                 std_was))
+            pct = pct_diff(std_should_be, std_was)
 
-            self.assertEqual(s._std, std_should_be, "Segment._std should be set after the user calls .std().")
+            self.assertTrue(pct < 0.1,
+                            "Standard deviation of Segment was incorrect. Should be {0}. Was {1}.".format(
+                                std_should_be,
+                                std_was))
+
+            pct = pct_diff(std_should_be, s._std)
+
+            self.assertTrue(pct < 0.1, "Segment._std should be set after the user calls .std().")
 
             std_was = s.std()
 
+            pct = pct_diff(std_should_be, std_was)
+
             # Check the std again, just to be safe.
-            self.assertEqual(std_was, std_should_be,
-                             "Standard deviation of Segment was incorrect on the second call. Should be {0}. Was {"
-                             "1}.".format(std_should_be, std_was))
+            self.assertTrue(pct < 0.1,
+                            "Standard deviation of Segment was incorrect on the second call. Should be {0}. Was {"
+                            "1}.".format(std_should_be, std_was))
 
     def test_mean(self):
         """
@@ -207,18 +215,23 @@ class SegmentTests(object):
 
             mean_was = s.mean()
 
-            self.assertEqual(mean_should_be, mean_was, "Mean of Segment incorrect. Should be {0}. Was {1}.".format(
+            pct = pct_diff(mean_should_be, mean_was)
+
+            self.assertTrue(pct < 0.1, "Mean of Segment incorrect. Should be {0}. Was {1}.".format(
                 mean_should_be, mean_was))
 
             # Make sure s._mean has been set.
-            self.assertEqual(s._mean, mean_should_be, "Segment._mean should be set after the user calls .mean().")
+            pct = pct_diff(mean_should_be, s._mean)
+            self.assertTrue(pct < 0.1, "Segment._mean should be set after the user calls .mean().")
 
             mean_was = s.mean()
 
+            pct = pct_diff(mean_should_be, mean_was)
+
             # Check the mean again, just to be safe
-            self.assertEqual(mean_should_be, mean_was,
-                             "Mean of Segment incorrect on second try. Should be {0}. Was {1}.".format(mean_should_be,
-                                                                                                       mean_was))
+            self.assertTrue(pct < 0.1,
+                            "Mean of Segment incorrect on second try. Should be {0}. Was {1}.".format(mean_should_be,
+                                                                                                      mean_was))
 
     def test_min(self):
         """
@@ -235,17 +248,21 @@ class SegmentTests(object):
 
             min_was = s.min()
 
-            self.assertEqual(min_should_be, min_was, "Min of Segment incorrect. Should be {0}. Was {1}.".format(
+            pct = pct_diff(min_should_be, min_was)
+
+            self.assertTrue(pct < 0.1, "Min of Segment incorrect. Should be {0}. Was {1}.".format(
                 min_should_be, min_was))
 
+            pct = pct_diff(min_should_be, s._min)
             # Make sure s._min has been set.
-            self.assertEqual(s._min, min_should_be, "Segment._min should be set after the user calls .min().")
+            self.assertTrue(pct < 0.1, "Segment._min should be set after the user calls .min().")
 
             min_was = s.min()
+            pct = pct_diff(min_should_be, min_was)
 
             # Check the min again, just to be safe
-            self.assertEqual(min_should_be, min_was, "Min of Segment incorrect on second try. Should be {0}. Was {"
-                                                     "1}.".format(min_should_be, min_was))
+            self.assertTrue(pct < 0.1, "Min of Segment incorrect on second try. Should be {0}. Was {"
+                                       "1}.".format(min_should_be, min_was))
 
     def test_max(self):
         """
@@ -262,17 +279,21 @@ class SegmentTests(object):
 
             max_was = s.max()
 
-            self.assertEqual(max_should_be, max_was, "Max of Segment incorrect. Should be {0}. Was {1}.".format(
+            pct = pct_diff(max_should_be, max_was)
+
+            self.assertTrue(pct < 0.1, "Max of Segment incorrect. Should be {0}. Was {1}.".format(
                 max_should_be, max_was))
 
             # Make sure s._max has been set.
-            self.assertEqual(s._max, max_should_be, "Segment._max should be set after the user calls .max().")
+            pct = pct_diff(max_should_be, s._max)
+            self.assertTrue(pct < 0.1, "Segment._max should be set after the user calls .max().")
 
             max_was = s.max()
 
+            pct = pct_diff(max_should_be, max_was)
             # Check the max again, just to be safe
-            self.assertEqual(max_should_be, max_was, "Max of Segment incorrect on second try. Should be {0}. Was {"
-                                                     "1}.".format(max_should_be, max_was))
+            self.assertTrue(pct < 0.1, "Max of Segment incorrect on second try. Should be {0}. Was {"
+                                       "1}.".format(max_should_be, max_was))
 
     def test_size(self):
         """
