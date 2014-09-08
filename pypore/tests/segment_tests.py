@@ -112,14 +112,12 @@ class SegmentTests(object):
             arr = np.array(s)
 
             self.assertEqual(s.size, arr.size)
+            self.assertEqual(arr.size, test_data.size)
 
             self.assertEqual(s.shape, arr.shape)
+            self.assertEqual(arr.shape, test_data.shape)
 
-            for index, value in np.ndenumerate(arr):
-                s_value = s
-                for i in index:
-                    s_value = s_value[i]
-                self.assertEqual(value, s_value)
+            np.testing.assert_array_equal(arr, s)
 
     def test_iterable(self):
         """
