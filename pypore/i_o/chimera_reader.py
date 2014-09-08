@@ -27,12 +27,17 @@ class ChimeraReader(AbstractReader):
     specs_file = None
 
     # parameters from the specsfile
+    scale_multiplication = None
+    scale_addition = None
     adc_bits = None
     adc_v_ref = None
     current_offset = None
     tia_gain = None
     pre_adc_gain = None
     bit_mask = None
+
+    def __array__(self):
+        return self._scale_raw_chimera(np.array(self._data[:]))
 
     def __getitem__(self, item):
         """
@@ -48,7 +53,16 @@ class ChimeraReader(AbstractReader):
         :param item:
         :return:
         """
-        return self._scale_raw_chimera(np.array(self.memmap[item]))
+        if isinstance(item, int):
+            return self._scale_raw_chimera(np.array(self._data[item]))
+        else:
+            return ChimeraReader(self._data[item], self.filename, self.sample_rate, self.bit_mask,
+                                 self.scale_multiplication, self.scale_addition)
+
+    def __iter__(self):
+        for point in self._data:
+            print point
+            yield self._scale_raw_chimera(np.array(point))
 
     def _scale_raw_chimera(self, values):
         """
@@ -64,23 +78,34 @@ class ChimeraReader(AbstractReader):
 
         return values
 
-    def _prepare_file(self, filename):
+    def __init__(self, data, *args):
         """
         Implementation of :py:func:`prepare_data_file` for Chimera ".log" files with the associated ".mat" file.
         """
+
+        if not isinstance(data, str):
+            # Then we must copy the data to the new object
+            self._data = data
+            self.filename = args[0]
+            self.sample_rate = args[1]
+            self.bit_mask = args[2]
+            self.scale_multiplication = args[3]
+            self.scale_addition = args[4]
+            return
+
         # remove 'log' append 'mat'
-        specs_filename = filename[:-len('log')] + 'mat'
+        specs_filename = data[:-len('log')] + 'mat'
         # load the matlab file with parameters for the runs
         try:
             self.specs_file = sio.loadmat(specs_filename)
         except IOError:
             raise IOError(
-                "Error opening " + filename + ", Chimera .mat specs file of same name must be located in same folder.")
+                "Error opening " + data + ", Chimera .mat specs file of same name must be located in same folder.")
 
         # Calculate number of points per channel
-        file_size = os.path.getsize(filename)
+        file_size = os.path.getsize(data)
         points_per_channel_total = file_size / CHIMERA_DATA_TYPE.itemsize
-        self.shape = (points_per_channel_total,)
+        shape = (points_per_channel_total,)
 
         self.adc_bits = self.specs_file['SETUP_ADCBITS'][0][0]
         self.adc_v_ref = self.specs_file['SETUP_ADCVREF'][0][0]
@@ -98,9 +123,29 @@ class ChimeraReader(AbstractReader):
         self.scale_addition = np.array(self.current_offset - self.adc_v_ref / (self.pre_adc_gain * self.tia_gain),
                                        dtype=CHIMERA_OUTPUT_DATA_TYPE)
 
-        # Use numpy memmap. Note this will fail for files > 4GB on 32 bit systems.
+        # Use numpy _data. Note this will fail for files > 4GB on 32 bit systems.
         # If you run into this, a more extreme lazy loading solution will be needed.
-        self.memmap = np.memmap(filename, dtype=CHIMERA_DATA_TYPE, mode='r', shape=self.shape)
+        self._data = np.memmap(data, dtype=CHIMERA_DATA_TYPE, mode='r', shape=shape)
+
+    def max(self):
+        if self._max is None:
+            self._max = np.array(self, copy=False).max()
+        return self._max
+
+    def mean(self):
+        if self._mean is None:
+            self._mean = np.array(self, copy=False).mean()
+        return self._mean
+
+    def min(self):
+        if self._min is None:
+            self._min = np.array(self, copy=False).min()
+        return self._min
+
+    def std(self):
+        if self._std is None:
+            self._std = np.array(self, copy=False).std()
+        return self._std
 
     def close(self):
-        del self.memmap
+        del self._data
