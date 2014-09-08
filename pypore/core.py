@@ -5,7 +5,7 @@ Core data types.
 import numpy as np
 
 
-class Segment():
+class Segment(object):
     """
     Segment is a segment of current data.
 
