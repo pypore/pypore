@@ -217,13 +217,19 @@ class SegmentTests(object):
         for test_data in self.default_test_data:
             s = self.SEGMENT_CLASS(test_data.data)
 
-            data = s[:]
+            # create acutal data array
+            data_should_be = np.array(s)
+            # create empty array
+            data = np.empty(s.size)
 
             count = 0
             i = 0
             for i, point in enumerate(s):
-                self.assertEqual(data[i], point)
+                data[i] = point
                 count += 1
+            np.testing.assert_array_equal(data, data_should_be,
+                                          "Iterated arrays did not match for class {0}. Should be {1}. Was {2}.".format(
+                                              self.SEGMENT_CLASS.__name__, data_should_be, data))
 
             # Make sure we looped through all of the correct i's
             self.assertEqual(count, test_data.size,
