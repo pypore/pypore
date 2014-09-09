@@ -166,7 +166,7 @@ class SegmentTests(object):
             else:
                 s = self.SEGMENT_CLASS(test_data.data, test_data.sample_rate)
 
-            s_slices = [s[:], s[:10], s[:][:10]]
+            s_slices = [s[:], s[:10], s[:][:10], s[-50:]]
 
             for i, s_slice in enumerate(s_slices):
                 arr = np.array(s_slice)
@@ -281,6 +281,33 @@ class SegmentTests(object):
                              "enumerate(segment) did not loop through all elements for a sliced Segment. It looped "
                              "through {0}/{1} elements.".format(count, data_should_be.size))
             self.assertEqual(i, data_should_be.size - 1)
+
+            # Test iterator with negative slice
+            s3 = s[-100:]
+
+            data_should_be = np.array(s3)
+            del data
+            data = np.empty(s3.size)
+
+            print("class: {0}".format(self.SEGMENT_CLASS.__name__))
+
+            count = 0
+            i = 0
+            for i, point in enumerate(s3):
+                data[i] = point
+                count += 1
+            np.testing.assert_array_equal(data, data_should_be,
+                                          "For a negatively sliced Segment, iterated arrays did not match for class {"
+                                          "0}. Should "
+                                          "be {1}. Was {2}.".format(self.SEGMENT_CLASS.__name__, data_should_be, data))
+
+            # Make sure we looped through all of the correct i's
+            self.assertEqual(count, data_should_be.size,
+                             "enumerate(segment) did not loop through all elements for a negatively sliced Segment. It "
+                             "looped "
+                             "through {0}/{1} elements.".format(count, data_should_be.size))
+            self.assertEqual(i, data_should_be.size - 1)
+
 
     def test_len(self):
         """
