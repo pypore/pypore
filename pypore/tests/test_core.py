@@ -68,28 +68,6 @@ class TestSegment(unittest.TestCase, SegmentTests):
 
         # TODO add tests for slicing list, mean, max, etc.
 
-    def test_slice_attributes(self):
-        """
-        Tests that a sliced Segment has the correct attributes/method returns, like max, min etc.
-        """
-        array = np.random.random(100)
-
-        sample_rate = 1.e6
-        s = Segment(array, sample_rate)
-
-        array_slices = [array[:], array[:50], array[:75][20:]]
-        s_slices = [s[:], s[:50], s[:75][20:]]
-
-        for i, array_slice in enumerate(array_slices):
-            s_slice = s_slices[i]
-
-            self.assertEqual(array_slice.max(), s_slice.max())
-            self.assertEqual(array_slice.mean(), s_slice.mean())
-            self.assertEqual(array_slice.min(), s_slice.min())
-
-            self.assertEqual(sample_rate, s_slice.sample_rate)
-            self.assertEqual(array_slice.size, s_slice.size)
-            self.assertEqual(len(array_slice), len(s_slice))
 
     def test_sample_rate(self):
         """

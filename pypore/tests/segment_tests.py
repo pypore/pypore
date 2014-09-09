@@ -102,6 +102,84 @@ class SegmentTests(object):
             self.assertFalse(isinstance(s3, self.SEGMENT_CLASS),
                              "Single index of {0} should not be a {0} object.".format(self.SEGMENT_CLASS.__name__))
 
+    def test_slicing(self):
+        """
+        Tests that slicing works as expected.
+        """
+
+        for test_data in self.default_test_data:
+            segment = self.SEGMENT_CLASS(test_data.data)
+
+            # get all the data first, to compare the slicing.
+            # the idea is that if test_get_all_data works, this should work.
+            data = segment[:]
+
+            # check starting points
+            np.testing.assert_array_equal(data[0:], segment[0:])
+            np.testing.assert_array_equal(data[3:], segment[3:])
+            np.testing.assert_array_equal(data[5:], segment[5:])
+
+            # check stopping points
+            np.testing.assert_array_equal(data[:0], segment[:0])
+            np.testing.assert_array_equal(data[:3], segment[:3])
+            np.testing.assert_array_equal(data[:5], segment[:5])
+
+            # check steps
+            np.testing.assert_array_equal(data[::2], segment[::2])
+            np.testing.assert_array_equal(data[::3], segment[::3])
+            np.testing.assert_array_equal(data[::5], segment[::5])
+
+            # check indices
+            self.assertEqual(data[0], segment[0])
+            self.assertEqual(data[1], segment[1])
+            self.assertEqual(data[-1], segment[-1])
+            self.assertEqual(data[5], segment[5])
+
+            # check negative step sizes
+            np.testing.assert_array_equal(data[::-1], segment[::-1])
+            np.testing.assert_array_equal(data[::-2], segment[::-2])
+            np.testing.assert_array_equal(data[::-3], segment[::-3])
+            np.testing.assert_array_equal(data[::-5], segment[::-5])
+
+            # check the whole thing
+            np.testing.assert_array_equal(data[0:8:2], segment[0:8:2])
+            np.testing.assert_array_equal(data[1:9:3], segment[1:9:3])
+            np.testing.assert_array_equal(data[-8:-1:-1], segment[-8:-1:-1])
+            np.testing.assert_array_equal(data[9:1:-1], segment[9:1:-1])
+            np.testing.assert_array_equal(data[9:1:-4], segment[9:1:-4])
+
+            try:
+                segment.close()
+            except(AttributeError):
+                pass
+
+    def test_slice_attributes(self):
+        """
+        Tests that a sliced Segment has the correct attributes/method returns, like max, min etc.
+        """
+        for test_data in self.default_test_data:
+            if isinstance(test_data.data, str):
+                s = self.SEGMENT_CLASS(test_data.data)
+            else:
+                s = self.SEGMENT_CLASS(test_data.data, test_data.sample_rate)
+
+            s_slices = [s[:], s[:50]]
+
+            if not isinstance(test_data, str):
+                s_slices.append(s[:25][15:])
+
+            for i, s_slice in enumerate(s_slices):
+                arr = np.array(s_slice)
+
+                self.assertAlmostEqual(arr.max(), s_slice.max())
+                self.assertAlmostEqual(arr.mean(), s_slice.mean())
+                self.assertAlmostEqual(arr.min(), s_slice.min())
+
+                self.assertAlmostEqual(test_data.sample_rate, s_slice.sample_rate)
+                self.assertEqual(arr.size, s_slice.size)
+                self.assertEqual(arr.shape[0], len(s_slice))
+                self.assertEqual(arr.shape, s_slice.shape)
+
     def test_convert_numpy_array(self):
         """
         Tests that we can convert Segment to a numpy array.
