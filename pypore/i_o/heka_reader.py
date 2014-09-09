@@ -198,17 +198,16 @@ class HekaReader(AbstractReader):
                 self._stops.append(self.points_per_channel_total)
                 self._steps.append(1)
             if self.channel_list_number > 1:
-                x = max((self._stops[1] - self._starts[1]) / self._steps[1], 1)
+                x = max((self._stops[1] - self._starts[1]) // self._steps[1], 1)
                 self._shape = (self.channel_list_number, x)
             else:
-                x = max((self._stops[0] - self._starts[0]) / self._steps[0], 1)
+                x = max((self._stops[0] - self._starts[0]) // self._steps[0], 1)
                 self._shape = (x,)
         else:
             self._starts = kwargs['starts']
             self._stops = kwargs['stops']
             self._steps = kwargs['steps']
             self._shape = kwargs['shape']
-
 
     def _read_heka_next_block(self):
         """
