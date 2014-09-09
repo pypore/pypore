@@ -252,7 +252,8 @@ class SegmentTests(object):
             s = self.SEGMENT_CLASS(data.data)
 
             self.assertEqual(len(s), data.size,
-                             "Segment's length and size differ. Length {0}. Size {1}.".format(len(s), data.size))
+                             "Segment's length and size differ for Segment class {0}. Length {1}. Size {2}.".format(
+                                 self.SEGMENT_CLASS.__name__, len(s), data.size))
 
     def test_std(self):
         """
