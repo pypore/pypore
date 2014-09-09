@@ -17,6 +17,7 @@ class SegmentTestData(object):
         :param shape: The shape of your test data.
         :param size: The number of elements in your test data.
         :param std: The standard deviation of your test data.
+        :param sample_rate: (Optional) The sampling rate of your test data. Default is 0.0 Hz.
         """
         self.data = data
         self.max = maximum
@@ -239,10 +240,17 @@ class SegmentTests(object):
 
             # Make sure we can loop through a second time with the same results.
 
+            del data
+            data = np.empty(s.size)
+
             count = 0
+            i = 0
             for i, point in enumerate(s):
-                self.assertEqual(data[i], point)
+                data[i] = point
                 count += 1
+            np.testing.assert_array_equal(data, data_should_be,
+                                          "On the second pass, iterated arrays did not match for class {0}. Should be {"
+                                          "1}. Was {2}.".format(self.SEGMENT_CLASS.__name__, data_should_be, data))
 
             # Make sure we looped through all of the correct i's
             self.assertEqual(count, test_data.size,
