@@ -284,7 +284,10 @@ class HekaReader(AbstractReader):
 
     @property
     def size(self):
-        return self.channel_list_number * self.points_per_channel_total
+        size = 1
+        for i in self.shape:
+            size *= i
+        return size
 
     def max(self):
         if self._max is None:
