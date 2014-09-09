@@ -159,26 +159,39 @@ class SegmentTests(object):
         """
         for test_data in self.default_test_data:
             if isinstance(test_data.data, str):
+                # If test_data.data is a string, it is likely a filename, so we will not
+                # set the sample rate.
                 s = self.SEGMENT_CLASS(test_data.data)
             else:
                 s = self.SEGMENT_CLASS(test_data.data, test_data.sample_rate)
 
-            s_slices = [s[:], s[:50]]
-
-            if not isinstance(test_data, str):
-                s_slices.append(s[:25][15:])
+            s_slices = [s[:], s[:10], s[:][:10]]
 
             for i, s_slice in enumerate(s_slices):
                 arr = np.array(s_slice)
 
-                self.assertAlmostEqual(arr.max(), s_slice.max())
-                self.assertAlmostEqual(arr.mean(), s_slice.mean())
-                self.assertAlmostEqual(arr.min(), s_slice.min())
+                self.assertAlmostEqual(arr.max(), s_slice.max(),
+                                       msg="Max failed for class {0}. Should be {1}. Was {2}.".format(
+                                           self.SEGMENT_CLASS.__name__, arr.max(), s_slice.max()))
+                self.assertAlmostEqual(arr.mean(), s_slice.mean(),
+                                       msg="Mean failed for class {0}. Should be {1}. Was {2}.".format(
+                                           self.SEGMENT_CLASS.__name__, arr.mean(), s_slice.mean()))
+                self.assertAlmostEqual(arr.min(), s_slice.min(),
+                                       msg="Min failed for class {0}. Should be {1}. Was {2}.".format(
+                                           self.SEGMENT_CLASS.__name__, arr.min(), s_slice.min()))
 
-                self.assertAlmostEqual(test_data.sample_rate, s_slice.sample_rate)
-                self.assertEqual(arr.size, s_slice.size)
-                self.assertEqual(arr.shape[0], len(s_slice))
-                self.assertEqual(arr.shape, s_slice.shape)
+                self.assertAlmostEqual(test_data.sample_rate, s_slice.sample_rate,
+                                       msg="Sample rate failed for class {0}. Should be {1}. Was {2}.".format(
+                                           self.SEGMENT_CLASS.__name__, test_data.sample_rate, s_slice.sample_rate))
+                self.assertEqual(arr.size, s_slice.size,
+                                 msg="Size failed for class {0}. Should be {1}. Was {2}.".format(
+                                     self.SEGMENT_CLASS.__name__, arr.size, s_slice.size))
+                self.assertEqual(len(arr), len(s_slice),
+                                 msg="Len failed for class {0}. Should be {1}. Was {2}.".format(
+                                     self.SEGMENT_CLASS.__name__, len(arr), len(s_slice)))
+                self.assertEqual(arr.shape, s_slice.shape,
+                                 msg="Shape failed for class {0}. Should be {1}. Was {2}.".format(
+                                     self.SEGMENT_CLASS.__name__, arr.shape, s_slice.shape))
 
     def test_convert_numpy_array(self):
         """
