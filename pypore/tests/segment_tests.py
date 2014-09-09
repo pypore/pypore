@@ -254,9 +254,33 @@ class SegmentTests(object):
 
             # Make sure we looped through all of the correct i's
             self.assertEqual(count, test_data.size,
-                             "enumerate(segment) did not loop through all elements On the second try. It looped "
+                             "enumerate(segment) did not loop through all elements on the second try. It looped "
                              "through {0}/{1} elements.".format(count, test_data.size))
             self.assertEqual(i, test_data.size - 1)
+
+            # Try iterating a slice of data
+            s2 = s[:100]
+
+            data_should_be = np.array(s2)
+            del data
+            data = np.empty(s2.size)
+
+            print("class: {0}".format(self.SEGMENT_CLASS.__name__))
+
+            count = 0
+            i = 0
+            for i, point in enumerate(s2):
+                data[i] = point
+                count += 1
+            np.testing.assert_array_equal(data, data_should_be,
+                                          "For a sliced Segment, iterated arrays did not match for class {0}. Should "
+                                          "be {1}. Was {2}.".format(self.SEGMENT_CLASS.__name__, data_should_be, data))
+
+            # Make sure we looped through all of the correct i's
+            self.assertEqual(count, data_should_be.size,
+                             "enumerate(segment) did not loop through all elements for a sliced Segment. It looped "
+                             "through {0}/{1} elements.".format(count, data_should_be.size))
+            self.assertEqual(i, data_should_be.size - 1)
 
     def test_len(self):
         """
@@ -265,9 +289,23 @@ class SegmentTests(object):
         for data in self.default_test_data:
             s = self.SEGMENT_CLASS(data.data)
 
-            self.assertEqual(len(s), data.size,
+            arr = np.array(s)
+
+            self.assertEqual(len(s), len(arr),
                              "Segment's length and size differ for Segment class {0}. Length {1}. Size {2}.".format(
                                  self.SEGMENT_CLASS.__name__, len(s), data.size))
+
+            # Test that the len of a slice is correct
+            slice_length = 50
+            if len(s) < slice_length:
+                len_should_be = len(s)
+            else:
+                len_should_be = slice_length
+            s2 = s[:slice_length]
+
+            self.assertEqual(len(s2), len_should_be,
+                             "Segment's length and size differ for Segment class {0}. Length {1}. Size {2}.".format(
+                                 self.SEGMENT_CLASS.__name__, len(s2), len_should_be))
 
     def test_std(self):
         """
