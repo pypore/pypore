@@ -1,7 +1,5 @@
 import unittest
 
-import numpy as np
-
 from pypore.core import Segment
 from pypore.tests.segment_tests import *
 
@@ -29,31 +27,29 @@ class TestSegment(unittest.TestCase, SegmentTests):
 
         s = Segment(array)
 
-        # use np.array(s[slice]) so np.testing comparisons work.
-
         # Regular slices
-        np.testing.assert_array_equal(array, np.array(s))
-        np.testing.assert_array_equal(array[:], np.array(s[:]))
-        np.testing.assert_array_equal(array[:19], np.array(s[:19]))
-        np.testing.assert_array_equal(array[55:], np.array(s[55:]))
-        np.testing.assert_array_equal(array[1:5], np.array(s[1:5]))
-        np.testing.assert_array_equal(array[5:100], np.array(s[5:100]))
+        np.testing.assert_array_equal(array, s)
+        np.testing.assert_array_equal(array[:], s[:])
+        np.testing.assert_array_equal(array[:19], s[:19])
+        np.testing.assert_array_equal(array[55:], s[55:])
+        np.testing.assert_array_equal(array[1:5], s[1:5])
+        np.testing.assert_array_equal(array[5:100], s[5:100])
 
         # steps
-        np.testing.assert_array_equal(array[::3], np.array(s[::3]))
-        np.testing.assert_array_equal(array[::-3], np.array(s[::-3]))
+        np.testing.assert_array_equal(array[::3], s[::3])
+        np.testing.assert_array_equal(array[::-3], s[::-3])
 
         # Negative indices
-        np.testing.assert_array_equal(array[-10:], np.array(s[-10:]))
-        np.testing.assert_array_equal(array[:-10], np.array(s[:-10]))
-        np.testing.assert_array_equal(array[-95:-5], np.array(s[-95:-5]))
+        np.testing.assert_array_equal(array[-10:], s[-10:])
+        np.testing.assert_array_equal(array[:-10], s[:-10])
+        np.testing.assert_array_equal(array[-95:-5], s[-95:-5])
 
         # Slicing slices
-        np.testing.assert_array_equal(array[:][:], np.array(s[:][:]))
-        np.testing.assert_array_equal(array[:19][:19], np.array(s[:19][:19]))
-        np.testing.assert_array_equal(array[1:15][:10:2], np.array(s[1:15][:10:2]))
-        np.testing.assert_array_equal(array[-1:][:], np.array(s[-1:][:]))
-        np.testing.assert_array_equal(array[:][:][:], np.array(s[:][:][:]))
+        np.testing.assert_array_equal(array[:][:], s[:][:])
+        np.testing.assert_array_equal(array[:19][:19], s[:19][:19])
+        np.testing.assert_array_equal(array[1:15][:10:2], s[1:15][:10:2])
+        np.testing.assert_array_equal(array[-1:][:], s[-1:][:])
+        np.testing.assert_array_equal(array[:][:][:], s[:][:][:])
 
     def test_list(self):
         """
@@ -65,9 +61,6 @@ class TestSegment(unittest.TestCase, SegmentTests):
 
         self.assertEqual(len(l), len(s))
         self.assertEqual(len(l), s.size)
-
-        # TODO add tests for slicing list, mean, max, etc.
-
 
     def test_sample_rate(self):
         """
