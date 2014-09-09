@@ -113,7 +113,7 @@ class SegmentTests(object):
 
             # get all the data first, to compare the slicing.
             # the idea is that if test_get_all_data works, this should work.
-            data = segment[:]
+            data = np.array(segment)
 
             # check starting points
             np.testing.assert_array_equal(data[0:], segment[0:])
@@ -307,7 +307,6 @@ class SegmentTests(object):
                              "looped "
                              "through {0}/{1} elements.".format(count, data_should_be.size))
             self.assertEqual(i, data_should_be.size - 1)
-
 
     def test_len(self):
         """
