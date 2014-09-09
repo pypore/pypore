@@ -488,3 +488,18 @@ class SegmentTests(object):
                              "Segment shape incorrect. Should be {0}. Was {1}.".format(test_data.shape,
                                                                                        s_shape))
 
+    def test_ndim(self):
+        """
+        Test that segment.ndim returns the correct number of dimensions.
+        """
+        for test_data in self.default_test_data:
+            s = self.SEGMENT_CLASS(test_data.data)
+
+            s_ndim = s.ndim
+
+            arr = np.array(s)
+
+            self.assertEqual(np.ndim(arr), s_ndim,
+                             "For class {0}, segment ndim incorrect. Should be {1}. Was {2}.".format(
+                                 self.SEGMENT_CLASS.__name__, np.ndim(arr), s_ndim))
+
