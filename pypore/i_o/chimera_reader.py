@@ -61,7 +61,6 @@ class ChimeraReader(AbstractReader):
 
     def __iter__(self):
         for point in self._data:
-            print point
             yield self._scale_raw_chimera(np.array(point))
 
     def _scale_raw_chimera(self, values):
