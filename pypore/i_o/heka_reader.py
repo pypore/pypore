@@ -213,12 +213,6 @@ class HekaReader(AbstractReader):
                 self._starts.append(0)
                 self._stops.append(self.points_per_channel_total)
                 self._steps.append(1)
-            if self.channel_list_number > 1:
-                x = max((self._stops[1] - self._starts[1]) // self._steps[1], 1)
-                self._shape = (self.channel_list_number, x)
-            else:
-                x = max((self._stops[0] - self._starts[0]) // self._steps[0], 1)
-                self._shape = (x,)
         else:
             self._starts = kwargs['starts']
             self._stops = kwargs['stops']
@@ -294,15 +288,29 @@ class HekaReader(AbstractReader):
         self.datafile.close()
 
     @property
+    def ndim(self):
+        if self._ndim is None:
+            self._ndim = len(self.shape)
+        return self._ndim
+
+    @property
     def shape(self):
+        if self._shape is None:
+            if self.channel_list_number > 1:
+                x = max((self._stops[1] - self._starts[1]) // self._steps[1], 1)
+                self._shape = (self.channel_list_number, x)
+            else:
+                x = max((self._stops[0] - self._starts[0]) // self._steps[0], 1)
+                self._shape = (x,)
         return self._shape
 
     @property
     def size(self):
-        size = 1
-        for i in self.shape:
-            size *= i
-        return size
+        if self._size is None:
+            self._size = 1
+            for i in self.shape:
+                self._size *= i
+        return self._size
 
     def max(self):
         if self._max is None:

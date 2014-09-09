@@ -39,6 +39,11 @@ class Segment(object):
     _min = None
     _std = None
 
+    # Cached properties
+    _ndim = None
+    _shape = None
+    _size = None
+
     def __array__(self):
         """
         Returns this object as an array.
@@ -111,28 +116,39 @@ class Segment(object):
         return self._std
 
     @property
+    def ndim(self):
+        """
+        Returns the number of dimensions in the data set.
+        """
+        if self._ndim is None:
+            try:
+                self._ndim = self._data.ndim
+            except AttributeError:
+                self._ndim = np.ndim(self._data)
+        return self._ndim
+
+    @property
     def shape(self):
         """
         Returns the shape of the Segment's data.
         :return: The shape of the Segment's data.
         """
-        try:
-            # First try to get the shape of the data as if _data is a numpy array.
-            shape = self._data.shape
-            return shape
-        except AttributeError:
-            # If not, just assume it's 1 dimensional.
-            # TODO fix getting dimension if we are passed a list, or a different data type. Might involve converting
-            # any data to a numpy array.
-            return self.size,
+        if self._shape is None:
+            try:
+                # First try to get the shape of the data as if _data is a numpy array.
+                self._shape = self._data.shape
+            except AttributeError:
+                self._shape = np.shape(self._data)
+        return self._shape
 
     @property
     def size(self):
         """
         :return: The number of data points in the Segment.
         """
-        try:
-            size = self._data.size
-            return size
-        except AttributeError:
-            return len(self._data)
+        if self._size is None:
+            try:
+                self._size = self._data.size
+            except AttributeError:
+                self._size = np.size(self._data)
+        return self._size
