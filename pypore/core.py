@@ -66,7 +66,7 @@ class Segment(object):
             return Segment(self._data[item], self.sample_rate)
 
     def __len__(self):
-        return self.size
+        return self.shape[0]
 
     def __iter__(self):
         return iter(self._data)
