@@ -5,4 +5,8 @@ def pct_diff(a, b):
     :param b: Second parameter, to compare.
     :return: The absolute value percent difference between the two values.
     """
+    if a == 0. and b == 0.:
+        return 0.
+    elif a == 0.:
+        return 100. * abs((a - b) / float(b))
     return 100. * abs((a - b) / float(a))
