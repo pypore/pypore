@@ -3,8 +3,11 @@ from pypore.core import Segment
 
 class AbstractReader(Segment):
     """
-    This is an abstract class showing the methods that subclasses must override.
+    This is an abstract class showing the methods that Reader subclasses must override.
 
+    Readers are subclasses of :py:class:`pypore.core.Segment` where the data is read from a file.
+
+    To subclass a Reader, see the methods in this class as well as :py:class:`pypore.core.Segment` for examples.
     """
     filename = None
     directory = None
