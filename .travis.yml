@@ -11,6 +11,8 @@ matrix:
     - python: "3.2"
     - python: "3.3"
     - python: "3.4"
+      env:
+        - TESTMODE=full
 
 before_install:
   - uname -a
