@@ -208,10 +208,10 @@ def setup_package():
         author='Jacob Schreiber, Will Parkin',
         author_email='jmschreiber91@gmail.com, wmparkin@gmail.com',
         url='http://www.github.com/pypore/pypore',
-        install_requires=['numpy', 'scipy'],
+        install_requires=['numpy'],
         # include_dirs=[numpy.get_include()],
         test_suite='nose.collector',
-        tests_require=['nose']
+        tests_require=['nose', 'scipy']
     )
 
     if len(sys.argv) >= 2 and ('--help' in sys.argv[1:] or

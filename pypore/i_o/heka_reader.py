@@ -36,14 +36,30 @@ def _get_param_list_byte_length(param_list):
 
 
 class HekaReader(AbstractReader):
+    def __array__(self):
+        return self.get_data_from_selection(self._starts, self._stops, self._steps)
+
     def __getitem__(self, item):
         # first we have to interpret the selection
         starts, stops, steps, shape = interpret_indexing(item, self.shape)
 
-        # get the data for the selection
-        return self.get_data_from_selection(starts, stops, steps, shape)
+        for i in xrange(len(starts)):
+            starts[i] += self._starts[i]
+            stops[i] = min(self._stops[i], stops[i])
+            steps[i] *= self._steps[i]
 
-    def get_data_from_selection(self, starts, stops, steps, shape):
+        # if we just want a single datapoint, return it
+        size = 1
+        for i in shape:
+            size *= i
+        if size == 1:
+            return self.get_data_from_selection(starts, stops, steps)
+
+        # otherwise, return a new HekaReader object with the slice requested
+
+        return HekaReader(self.filename, starts=starts, stops=stops, steps=steps, shape=shape)
+
+    def get_data_from_selection(self, starts, stops, steps):
         """
         Returns the requested data.
         :param starts:
@@ -106,10 +122,38 @@ class HekaReader(AbstractReader):
 
         return values
 
-    def _prepare_file(self, filename):
+    def __iter__(self):
+        """
+        Makes the HekaReader iterable.
+        """
+        # TODO this is a slow implementation ~9s to run on lab pc. Make it faster.
+        # get the number of elements to return
+        my_range = xrange(self._starts[0], self._stops[0], self._steps[0])
+        n_elements = len(my_range)
+
+        # setup the starts/stops/steps
+        starts = [self._starts[0]]
+        stops = [starts[0] + 1]
+        steps = [self._steps[0]]
+
+        # add on the > 1st dimension of the current slice
+        for j in xrange(1, len(self.shape)):
+            starts.append(self._starts[j])
+            stops.append(self._stops[j])
+            steps.append(self._steps[j])
+
+        for i in xrange(n_elements):
+            # get the chunk of data
+            chunk = self.get_data_from_selection(starts, stops, steps)
+            yield chunk
+            starts[0] += self._steps[0]
+            stops[0] = starts[0] + 1
+
+    def __init__(self, filename, **kwargs):
         """
         Implementation of :py:func:`prepare_data_file` for Heka ".hkd" files.
         """
+        self.filename = filename
         self.datafile = open(filename, 'rb')
 
         # Check that the first line is as expected
@@ -158,10 +202,22 @@ class HekaReader(AbstractReader):
         self._chunk_size = self.per_file_params['Points per block']
         self.points_per_channel_total = self._chunk_size * self.num_blocks_in_file
 
-        # TODO change for multichannel
-        self.shape = (self.points_per_channel_total,)
-
         self.sample_rate = 1.0 / self.per_file_params['Sampling interval']
+
+        if not 'starts' in kwargs:
+            self._starts = []
+            self._stops = []
+            self._steps = []
+            for i in xrange(self.channel_list_number):
+                # append start, stop, step for each channel.
+                self._starts.append(0)
+                self._stops.append(self.points_per_channel_total)
+                self._steps.append(1)
+        else:
+            self._starts = kwargs['starts']
+            self._stops = kwargs['stops']
+            self._steps = kwargs['steps']
+            self._shape = kwargs['shape']
 
     def _read_heka_next_block(self):
         """
@@ -227,3 +283,52 @@ class HekaReader(AbstractReader):
             else:
                 return None
         return params
+
+    def close(self):
+        self.datafile.close()
+
+    @property
+    def ndim(self):
+        if self._ndim is None:
+            self._ndim = len(self.shape)
+        return self._ndim
+
+    @property
+    def shape(self):
+        if self._shape is None:
+            if self.channel_list_number > 1:
+                x = max((self._stops[1] - self._starts[1]) // self._steps[1], 1)
+                self._shape = (self.channel_list_number, x)
+            else:
+                x = max((self._stops[0] - self._starts[0]) // self._steps[0], 1)
+                self._shape = (x,)
+        return self._shape
+
+    @property
+    def size(self):
+        if self._size is None:
+            self._size = 1
+            for i in self.shape:
+                self._size *= i
+        return self._size
+
+    def max(self):
+        if self._max is None:
+            # Loop through the data without affecting the position
+            self._max = self.__array__().max()
+        return self._max
+
+    def mean(self):
+        if self._mean is None:
+            self._mean = self.__array__().mean()
+        return self._mean
+
+    def min(self):
+        if self._min is None:
+            self._min = self.__array__().min()
+        return self._min
+
+    def std(self):
+        if self._std is None:
+            self._std = self.__array__().std()
+        return self._std
