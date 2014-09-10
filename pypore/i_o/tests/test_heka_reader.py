@@ -25,3 +25,11 @@ class TestHekaReader(unittest.TestCase, ReaderTests):
             reader.chunk_size = chunk
 
         self.assertRaises(AttributeError, set_chunk, 100)
+
+    def test_heka_format_error_raises(self):
+        """
+        Tests that trying to open a file that doesn't fit the Heka specs raises an IOError.
+        """
+        filename = tf.get_abs_path('chimera_small.log')
+
+        self.assertRaises(IOError, self.SEGMENT_CLASS, filename)

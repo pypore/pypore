@@ -156,17 +156,22 @@ class HekaReader(AbstractReader):
         self.filename = filename
         self.datafile = open(filename, 'rb')
 
-        # Check that the first line is as expected
-        line = self.datafile.readline().decode()
-        if not 'Nanopore Experiment Data File V2.0' in line:
-            self.datafile.close()
-            raise IOError('Heka data file format not recognized.')
-
-        # Just skip over the file header text, should be always the same.
-        while True:
+        try:
+            # Check that the first line is as expected
             line = self.datafile.readline().decode()
-            if 'End of file format' in line:
-                break
+            if not 'Nanopore Experiment Data File V2.0' in line:
+                self.datafile.close()
+                raise IOError('Heka data file format not recognized.')
+
+            # Just skip over the file header text, should be always the same.
+            while True:
+                line = self.datafile.readline().decode()
+                if 'End of file format' in line:
+                    break
+        except UnicodeDecodeError:
+            # If we can't decode the first line, then it's definitely not a heka file.
+            self.datafile.close()
+            raise IOError('Data file not recognized as a Heka file.')
 
         # So now datafile should be at the binary data.
 
