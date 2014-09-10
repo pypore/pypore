@@ -10,3 +10,9 @@ class TestAbstractReader(unittest.TestCase):
         :return:
         """
         self.assertRaises(NotImplementedError, AbstractReader, 'hi.txt')
+
+    def test_close_raises(self):
+        """
+        Tests that the close method exists and raises NotImplementedError.
+        """
+        self.assertRaises(NotImplementedError, AbstractReader.close, AbstractReader.__new__(AbstractReader))
