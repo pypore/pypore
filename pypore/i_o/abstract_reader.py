@@ -32,7 +32,6 @@ class AbstractReader(Segment):
 
         If there was an error opening the files, params will have 'error' key with string description.
         """
-        super(AbstractReader, self).__init__(*args, **kwargs)
         raise NotImplementedError
 
     def close(self):
