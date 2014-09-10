@@ -19,6 +19,11 @@ class TestSegment(unittest.TestCase, SegmentTests):
                 SegmentTestData(data, np.max(data), np.mean(data), np.min(data), np.shape(data), np.size(data),
                                 np.std(data), 1.e6))
 
+        # add one element data with no sample rate
+        data = np.random.random(1)
+        SegmentTestData(data, np.max(data), np.mean(data), np.min(data), np.shape(data), np.size(data),
+                        np.std(data))
+
     def test_slicing_numpy_array(self):
         """
         Tests that slicing a Segment holding numpy array data works well.
