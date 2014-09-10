@@ -33,3 +33,11 @@ class TestHekaReader(unittest.TestCase, ReaderTests):
         filename = tf.get_abs_path('chimera_small.log')
 
         self.assertRaises(IOError, self.SEGMENT_CLASS, filename)
+
+    def test_incomplete_heka_file_raises(self):
+        """
+        Tests that opening a Heka file with incomplete blocks raises an IOError.
+        """
+        filename = tf.get_abs_path('heka_incomplete.hkd')
+
+        self.assertRaises(IOError, self.SEGMENT_CLASS, filename)
