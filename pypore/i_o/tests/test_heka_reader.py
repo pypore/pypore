@@ -49,3 +49,16 @@ class TestHekaReader(unittest.TestCase, ReaderTests):
         filename = tf.get_abs_path('heka_incomplete.hkd')
 
         self.assertRaises(IOError, self.SEGMENT_CLASS, filename)
+
+    def test_read_next_block_ends(self):
+        """
+        Tests that the _read_heka_next_block function eventually returns an empty array.
+        """
+        segment = self.SEGMENT_CLASS(self.default_test_data[0].data)
+
+        done = False
+        while not done:
+            block = segment._read_heka_next_block()[0]
+            if block.size < 1:
+                done = True
+        self.assertTrue(done)
