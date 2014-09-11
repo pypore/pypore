@@ -16,13 +16,14 @@ class TestSegment(unittest.TestCase, SegmentTests):
 
         for data in [np.random.random(100), np.zeros(500), [1, 2, 3, 4, 5, 6]]:
             self.default_test_data.append(
-                SegmentTestData(data, np.max(data), np.mean(data), np.min(data), np.shape(data), np.size(data),
-                                np.std(data), 1.e6))
+                SegmentTestData(data, maximum=np.max(data), mean=np.mean(data), minimum=np.min(data),
+                                shape=np.shape(data), size=np.size(data),
+                                std=np.std(data), sample_rate=1.e6))
 
         # add one element data with no sample rate
         data = np.random.random(1)
-        SegmentTestData(data, np.max(data), np.mean(data), np.min(data), np.shape(data), np.size(data),
-                        np.std(data))
+        SegmentTestData(data, maximum=np.max(data), mean=np.mean(data), minimum=np.min(data), shape=np.shape(data),
+                        size=np.size(data), std=np.std(data))
 
     def test_slicing_numpy_array(self):
         """

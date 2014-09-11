@@ -8,9 +8,10 @@ import pypore.sampledata.testing_files as tf
 
 class TestHekaReader(unittest.TestCase, ReaderTests):
     SEGMENT_CLASS = HekaReader
-    default_test_data = [SegmentTestData(tf.get_abs_path('heka_1.5s_mean5.32p_std2.76p.hkd'), 2.2500000000000003e-11,
-                                         5.3176916666664804e-12, -1.5937500000000003e-11, (75000,), 75000,
-                                         2.7618361051293422e-12, 50000.)]
+    default_test_data = [
+        SegmentTestData(tf.get_abs_path('heka_1.5s_mean5.32p_std2.76p.hkd'), maximum=2.2500000000000003e-11,
+                        mean=5.3176916666664804e-12, minimum=-1.5937500000000003e-11, shape=(75000,), size=75000,
+                        std=2.7618361051293422e-12, sample_rate=50000.)]
 
     def test_chunk_size(self):
         """
