@@ -27,12 +27,19 @@ class TestHekaReader(unittest.TestCase, ReaderTests):
 
         self.assertRaises(AttributeError, set_chunk, 100)
 
-    def test_heka_format_error_raises(self):
+    def test_heka_format_error_raises_binary_file(self):
         """
-        Tests that trying to open a file that doesn't fit the Heka specs raises an IOError.
+        Tests that trying to open a completely binary file that doesn't fit the Heka specs raises an IOError.
         """
+        # Test with a complete binary file that has no text header.
         filename = tf.get_abs_path('chimera_small.log')
+        self.assertRaises(IOError, self.SEGMENT_CLASS, filename)
 
+    def test_heka_format_error_raises_text_file(self):
+        """
+        Test that opening a text with invalid header text fails.
+        """
+        filename = tf.get_abs_path('two_line_text.txt')
         self.assertRaises(IOError, self.SEGMENT_CLASS, filename)
 
     def test_incomplete_heka_file_raises(self):
