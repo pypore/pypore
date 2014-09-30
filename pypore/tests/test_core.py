@@ -21,6 +21,8 @@ class TestSegment(unittest.TestCase, SegmentTests):
         data = np.random.random(1)
         self.default_test_data.append(SegmentTestData(data))
 
+        # add multichannel data
+
     def test_slicing_numpy_array(self):
         """
         Tests that slicing a Segment holding numpy array data works well.
