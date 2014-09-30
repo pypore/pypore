@@ -1,35 +1,50 @@
 import numpy as np
 
-from pypore.tests import pct_diff
-
 
 class SegmentTestData(object):
     """
     Data object holding sample data and corresponding attributes so SegmentTests can use it.
     """
+    sample_rate = None
+    max = mean = min = std = None
+    size = shape = None
 
-    def __init__(self, data, maximum, mean, minimum, shape, size, std, sample_rate=None):
+    def __init__(self, data, maximum=None, mean=None, minimum=None, shape=None, size=None, std=None, sample_rate=0.0):
         """
         :param data: Your test data for your Segment subclass. For example, a numpy array.
-        :param maximum: The maximum value in your test data.
-        :param mean: The mean of your test data.
-        :param minimum: The minimum value in your test data.
-        :param shape: The shape of your test data.
-        :param size: The number of elements in your test data.
-        :param std: The standard deviation of your test data.
+        :param maximum: (Optional) The maximum value in your test data. If omitted, np.max(data) will be used.
+        :param mean: (Optional) The mean of your test data. If omitted, np.mean(data) will be used.
+        :param minimum: (Optional) The minimum value in your test data. If omitted, np.min(data) will be used.
+        :param shape: (Optional) The shape of your test data. If omitted, np.shape(data) will be used.
+        :param size: (Optional) The number of elements in your test data. If omitted, np.size(data) will be used.
+        :param std: (Optional) The standard deviation of your test data. If omitted, np.std(data) will be used.
         :param sample_rate: (Optional) The sampling rate of your test data. Default is 0.0 Hz.
         """
         self.data = data
-        self.max = maximum
-        self.mean = mean
-        self.min = minimum
-        self.shape = shape
-        self.size = size
-        self.std = std
 
+        if maximum is None:
+            maximum = np.max(data)
+        self.max = maximum
+        if mean is None:
+            mean = np.mean(data)
+        self.mean = mean
+        if minimum is None:
+            minimum = np.min(data)
+        self.min = minimum
+        if shape is None:
+            shape = np.shape(data)
+        self.shape = shape
+        if size is None:
+            size = np.size(data)
+        self.size = size
+        if std is None:
+            std = np.std(data)
+        self.std = std
         if sample_rate is None:
             sample_rate = 0.0
         self.sample_rate = sample_rate
+
+        assert data is not None
 
 
 class SegmentTests(object):
@@ -99,7 +114,7 @@ class SegmentTests(object):
                             "Slice of {0} object did not return a {0} object.".format(
                                 self.SEGMENT_CLASS.__name__))
 
-            s3 = s[1]
+            s3 = s[0]
             self.assertFalse(isinstance(s3, self.SEGMENT_CLASS),
                              "Single index of {0} should not be a {0} object.".format(self.SEGMENT_CLASS.__name__))
 
@@ -132,9 +147,10 @@ class SegmentTests(object):
 
             # check indices
             self.assertEqual(data[0], segment[0])
-            self.assertEqual(data[1], segment[1])
             self.assertEqual(data[-1], segment[-1])
-            self.assertEqual(data[5], segment[5])
+            if len(data) > 1:
+                self.assertEqual(data[1], segment[1])
+                self.assertEqual(data[5], segment[5])
 
             # check negative step sizes
             np.testing.assert_array_equal(data[::-1], segment[::-1])
@@ -350,25 +366,19 @@ class SegmentTests(object):
 
             std_was = s.std()
 
-            pct = pct_diff(std_should_be, std_was)
+            self.assertAlmostEqual(std_should_be, std_was,
+                                   msg="Standard deviation of Segment was incorrect. Should be {0}. Was {1}.".format(
+                                       std_should_be,
+                                       std_was))
 
-            self.assertTrue(pct < 0.1,
-                            "Standard deviation of Segment was incorrect. Should be {0}. Was {1}.".format(
-                                std_should_be,
-                                std_was))
-
-            pct = pct_diff(std_should_be, s._std)
-
-            self.assertTrue(pct < 0.1, "Segment._std should be set after the user calls .std().")
+            self.assertAlmostEqual(std_should_be, s._std, msg="Segment._std should be set after the user calls .std().")
 
             std_was = s.std()
 
-            pct = pct_diff(std_should_be, std_was)
-
             # Check the std again, just to be safe.
-            self.assertTrue(pct < 0.1,
-                            "Standard deviation of Segment was incorrect on the second call. Should be {0}. Was {"
-                            "1}.".format(std_should_be, std_was))
+            self.assertAlmostEqual(std_should_be, std_was,
+                                   msg="Standard deviation of Segment was incorrect on the second call. Should be {0}. "
+                                       "Was {1}.".format(std_should_be, std_was))
 
     def test_mean(self):
         """
@@ -385,23 +395,21 @@ class SegmentTests(object):
 
             mean_was = s.mean()
 
-            pct = pct_diff(mean_should_be, mean_was)
-
-            self.assertTrue(pct < 0.1, "Mean of Segment incorrect. Should be {0}. Was {1}.".format(
-                mean_should_be, mean_was))
+            self.assertAlmostEqual(mean_should_be, mean_was,
+                                   msg="Mean of Segment incorrect. Should be {0}. Was {1}.".format(
+                                       mean_should_be, mean_was))
 
             # Make sure s._mean has been set.
-            pct = pct_diff(mean_should_be, s._mean)
-            self.assertTrue(pct < 0.1, "Segment._mean should be set after the user calls .mean().")
+            self.assertAlmostEqual(mean_should_be, s._mean,
+                                   msg="Segment._mean should be set after the user calls .mean().")
 
             mean_was = s.mean()
 
-            pct = pct_diff(mean_should_be, mean_was)
-
             # Check the mean again, just to be safe
-            self.assertTrue(pct < 0.1,
-                            "Mean of Segment incorrect on second try. Should be {0}. Was {1}.".format(mean_should_be,
-                                                                                                      mean_was))
+            self.assertAlmostEqual(mean_should_be, mean_was,
+                                   msg="Mean of Segment incorrect on second try. Should be {0}. Was {1}.".format(
+                                       mean_should_be,
+                                       mean_was))
 
     def test_min(self):
         """
@@ -418,20 +426,17 @@ class SegmentTests(object):
 
             min_was = s.min()
 
-            pct = pct_diff(min_should_be, min_was)
+            self.assertAlmostEqual(min_should_be, min_was,
+                                   msg="Min of Segment incorrect. Should be {0}. Was {1}.".format(
+                                       min_should_be, min_was))
 
-            self.assertTrue(pct < 0.1, "Min of Segment incorrect. Should be {0}. Was {1}.".format(
-                min_should_be, min_was))
-
-            pct = pct_diff(min_should_be, s._min)
             # Make sure s._min has been set.
-            self.assertTrue(pct < 0.1, "Segment._min should be set after the user calls .min().")
-
-            min_was = s.min()
-            pct = pct_diff(min_should_be, min_was)
+            self.assertAlmostEqual(min_should_be, s._min, msg="Segment._min should be set after the user calls .min().")
 
             # Check the min again, just to be safe
-            self.assertTrue(pct < 0.1, "Min of Segment incorrect on second try. Should be {0}. Was {"
+            min_was = s.min()
+            self.assertAlmostEqual(min_should_be, min_was,
+                                   msg="Min of Segment incorrect on second try. Should be {0}. Was {"
                                        "1}.".format(min_should_be, min_was))
 
     def test_max(self):
@@ -449,20 +454,17 @@ class SegmentTests(object):
 
             max_was = s.max()
 
-            pct = pct_diff(max_should_be, max_was)
-
-            self.assertTrue(pct < 0.1, "Max of Segment incorrect. Should be {0}. Was {1}.".format(
-                max_should_be, max_was))
+            self.assertAlmostEqual(max_should_be, max_was,
+                                   msg="Max of Segment incorrect. Should be {0}. Was {1}.".format(
+                                       max_should_be, max_was))
 
             # Make sure s._max has been set.
-            pct = pct_diff(max_should_be, s._max)
-            self.assertTrue(pct < 0.1, "Segment._max should be set after the user calls .max().")
+            self.assertAlmostEqual(max_should_be, s._max, msg="Segment._max should be set after the user calls .max().")
 
-            max_was = s.max()
-
-            pct = pct_diff(max_should_be, max_was)
             # Check the max again, just to be safe
-            self.assertTrue(pct < 0.1, "Max of Segment incorrect on second try. Should be {0}. Was {"
+            max_was = s.max()
+            self.assertAlmostEqual(max_should_be, max_was,
+                                   msg="Max of Segment incorrect on second try. Should be {0}. Was {"
                                        "1}.".format(max_should_be, max_was))
 
     def test_size(self):
