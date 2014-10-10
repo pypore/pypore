@@ -167,7 +167,8 @@ class Extractor(object):
         """
         A extractor is responsible for taking in one or many :py:class:`pypore.core.Segment`s and returning a list of
         :py:class:`pypore.core.Segment`s.
-        :param segment: One or many :py:class:`pypore.core.Segment`s.
+        :param segment: One or many :py:class:`pypore.core.Segment`s. If a list of :py:class:`pypore.core.Segment`s
+        is passed in, the :py:class:`pypore.core.Segment`s are assumed to be contiguous.
         :return: A list of :py:class:`pypore.core.Segment`s found by the extractor.
         """
         raise NotImplementedError("Extractor is an abstract base class. Extend it and override the search method.")
