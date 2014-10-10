@@ -1,6 +1,8 @@
 import unittest
 
 from pypore.core import Segment
+
+from pypore.core import Extractor
 from pypore.tests.segment_tests import *
 
 
@@ -79,3 +81,23 @@ class TestSegment(unittest.TestCase, SegmentTests):
 
         self.assertEqual(sample_rate, s2.sample_rate, "Segment's sample_rate incorrect. Should be {0}. Was {"
                                                       "1}".format(sample_rate, s2.sample_rate))
+
+
+class ExtractorTests(unittest.TestCase):
+    """
+    Tests for Extractor base class.
+    """
+
+    def test_has_search_method(self):
+        """
+        Tests that Extractor has a search method.
+        """
+        extractor = Extractor()
+        self.assertTrue("search" in dir(extractor))
+
+    def test_search_raises_not_implemented_error(self):
+        """
+        Tests that Extractor.search raises a NotImplementedError
+        """
+        extractor = Extractor()
+        self.assertRaises(NotImplementedError, extractor.search, None)

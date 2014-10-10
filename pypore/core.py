@@ -1,5 +1,5 @@
 """
-Core data types.
+Core pypore types.
 """
 
 import numpy as np
@@ -152,3 +152,22 @@ class Segment(object):
             except AttributeError:
                 self._size = np.size(self._data)
         return self._size
+
+
+class Extractor(object):
+    """
+    Base Extractor object defining the methods and attributes of Parsers.
+
+    An Extractor searches through a :py:class:`pypore.core.Segment` or list of :py:class:`pypore.core.Segment`s and
+    extracts a list of :py:class:`pypore.core.Segment`s based on search parameters.
+
+    """
+
+    def search(self, segment):
+        """
+        A extractor is responsible for taking in one or many :py:class:`pypore.core.Segment`s and returning a list of
+        :py:class:`pypore.core.Segment`s.
+        :param segment: One or many :py:class:`pypore.core.Segment`s.
+        :return: A list of :py:class:`pypore.core.Segment`s found by the extractor.
+        """
+        raise NotImplementedError("Extractor is an abstract base class. Extend it and override the search method.")
