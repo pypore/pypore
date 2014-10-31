@@ -156,7 +156,7 @@ class Segment(object):
 
 class Extractor(object):
     """
-    Base Extractor object defining the methods and attributes of Parsers.
+    Base Extractor object defining the methods and attributes of Extractors.
 
     An Extractor searches through a :py:class:`pypore.core.Segment` or list of :py:class:`pypore.core.Segment`s and
     extracts a list of :py:class:`pypore.core.Segment`s based on search parameters.
