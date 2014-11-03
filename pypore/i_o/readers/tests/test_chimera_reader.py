@@ -3,8 +3,8 @@
 import unittest
 
 from pypore.tests.segment_tests import SegmentTestData
-from pypore.i_o.chimera_reader import ChimeraReader
-from pypore.i_o.tests.reader_tests import ReaderTests
+from pypore.i_o.readers.chimera_reader import ChimeraReader
+from pypore.i_o.readers.tests.reader_tests import ReaderTests
 import pypore.sampledata.testing_files as tf
 
 

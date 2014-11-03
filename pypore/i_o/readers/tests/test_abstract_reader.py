@@ -1,6 +1,6 @@
-from pypore.i_o.abstract_reader import AbstractReader
-
 import unittest
+
+from pypore.i_o.readers.abstract_reader import AbstractReader
 
 
 class TestAbstractReader(unittest.TestCase):

@@ -1,8 +1,8 @@
 import unittest
 
 from pypore.tests.segment_tests import SegmentTestData
-from pypore.i_o.heka_reader import HekaReader
-from pypore.i_o.tests.reader_tests import ReaderTests
+from pypore.i_o.readers.heka_reader import HekaReader
+from pypore.i_o.readers.tests.reader_tests import ReaderTests
 import pypore.sampledata.testing_files as tf
 
 

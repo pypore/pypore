@@ -2,7 +2,7 @@ import os
 
 import numpy as np
 
-from pypore.i_o.abstract_reader import AbstractReader
+from pypore.i_o.readers.abstract_reader import AbstractReader
 
 # Data types list, in order specified by the HEKA file header v2.0.
 # Using big-endian.

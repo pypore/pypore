@@ -3,7 +3,7 @@ import os
 import scipy.io as sio
 import numpy as np
 
-from pypore.i_o.abstract_reader import AbstractReader
+from pypore.i_o.readers.abstract_reader import AbstractReader
 
 
 # ctypedef np.float_t DTYPE_t

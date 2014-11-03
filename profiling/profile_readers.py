@@ -1,7 +1,7 @@
 import cProfile
 
-from pypore.i_o.chimera_reader import ChimeraReader
-from pypore.i_o.heka_reader import HekaReader
+from pypore.i_o.readers.chimera_reader import ChimeraReader
+from pypore.i_o.readers.heka_reader import HekaReader
 import pypore.sampledata.testing_files as tf
 
 
