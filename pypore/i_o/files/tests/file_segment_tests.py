@@ -3,9 +3,9 @@ import numpy as np
 from pypore.tests.segment_tests import SegmentTests
 
 
-class ReaderTests(SegmentTests):
+class FileSegmentTests(SegmentTests):
     """
-    Other test classes for readers should inherit this class in addition to unittest.TestCase.
+    Other test classes for files should inherit this class in addition to unittest.TestCase.
 
     See :py:class:`pypore.tests.segment_tests.SegmentTests` for further details.
     """
@@ -32,7 +32,7 @@ class ReaderTests(SegmentTests):
 
     def test_close(self):
         """
-        Tests that subclasses of AbstractReader have implemented close.
+        Tests that subclasses of :py:class:`pypore.i_o.files.file_segment.FileSegment` have implemented close.
         """
         reader = self.SEGMENT_CLASS(self.default_test_data[0].data)
         reader.close()

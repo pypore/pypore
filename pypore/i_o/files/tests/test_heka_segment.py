@@ -1,13 +1,13 @@
 import unittest
 
 from pypore.tests.segment_tests import SegmentTestData
-from pypore.i_o.readers.heka_reader import HekaReader
-from pypore.i_o.readers.tests.reader_tests import ReaderTests
+from pypore.i_o.files.heka_segment import HekaSegment
+from pypore.i_o.files.tests.file_segment_tests import FileSegmentTests
 import pypore.sampledata.testing_files as tf
 
 
-class TestHekaReader(unittest.TestCase, ReaderTests):
-    SEGMENT_CLASS = HekaReader
+class TestHekaSegment(unittest.TestCase, FileSegmentTests):
+    SEGMENT_CLASS = HekaSegment
     default_test_data = [SegmentTestData(tf.get_abs_path('heka_1.5s_mean5.32p_std2.76p.hkd'), 2.2500000000000003e-11,
                                          5.3176916666664804e-12, -1.5937500000000003e-11, (75000,), 75000,
                                          2.7618361051293422e-12, 50000.)]

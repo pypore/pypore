@@ -2,7 +2,7 @@ import os
 
 import numpy as np
 
-from pypore.i_o.readers.abstract_reader import AbstractReader
+from pypore.i_o.files.file_segment import FileSegment
 
 # Data types list, in order specified by the HEKA file header v2.0.
 # Using big-endian.
@@ -35,7 +35,7 @@ def _get_param_list_byte_length(param_list):
     return size
 
 
-class HekaReader(AbstractReader):
+class HekaSegment(FileSegment):
     def __array__(self):
         return self.get_data_from_selection(self._starts, self._stops, self._steps)
 
@@ -57,7 +57,7 @@ class HekaReader(AbstractReader):
 
         # otherwise, return a new HekaReader object with the slice requested
 
-        return HekaReader(self.filename, starts=starts, stops=stops, steps=steps, shape=shape)
+        return HekaSegment(self.filename, starts=starts, stops=stops, steps=steps, shape=shape)
 
     def get_data_from_selection(self, starts, stops, steps):
         """

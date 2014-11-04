@@ -1,18 +1,19 @@
 from pypore.core import Segment
 
 
-class AbstractReader(Segment):
+class FileSegment(Segment):
     """
-    This is an abstract class showing the methods that Reader subclasses must override.
+    This is an abstract class showing the methods that :py:class:`FileSegment` subclasses must override.
 
-    Readers are subclasses of :py:class:`pypore.core.Segment` where the data is read from a file.
+    :py:class:`FileSegment`s are subclasses of :py:class:`pypore.core.Segment` where the data is read from a file.
 
-    To subclass a Reader, see the methods in this class as well as :py:class:`pypore.core.Segment` for examples.
+    To subclass a :py:class:`FileSegment`, see the methods in this class as well as :py:class:`pypore.core.Segment` for
+    examples.
     """
     filename = None
     directory = None
 
-    # extra fields specific to readers should be accessible from
+    # extra fields specific to files should be accessible from
     metadata = None
 
     # _chunk_size can be used by subclasses when lazy loading data

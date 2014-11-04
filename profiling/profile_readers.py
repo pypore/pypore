@@ -1,7 +1,7 @@
 import cProfile
 
-from pypore.i_o.readers.chimera_reader import ChimeraReader
-from pypore.i_o.readers.heka_reader import HekaReader
+from pypore.i_o.files.chimera_segment import ChimeraSegment
+from pypore.i_o.files.heka_segment import HekaSegment
 import pypore.sampledata.testing_files as tf
 
 
@@ -16,14 +16,14 @@ def _reader_tasks(reader):
 
 def profile_chimera():
     filename = tf.get_abs_path('spheres_20140114_154938_beginning.log')
-    reader = ChimeraReader(filename)
+    reader = ChimeraSegment(filename)
     _reader_tasks(reader)
     reader.close()
 
 
 def profile_heka():
     filename = tf.get_abs_path('heka_1.5s_mean5.32p_std2.76p.hkd')
-    reader = HekaReader(filename)
+    reader = HekaSegment(filename)
     _reader_tasks(reader)
     reader.close()
 

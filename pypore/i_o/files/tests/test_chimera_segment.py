@@ -3,13 +3,13 @@
 import unittest
 
 from pypore.tests.segment_tests import SegmentTestData
-from pypore.i_o.readers.chimera_reader import ChimeraReader
-from pypore.i_o.readers.tests.reader_tests import ReaderTests
+from pypore.i_o.files.chimera_segment import ChimeraSegment
+from pypore.i_o.files.tests.file_segment_tests import FileSegmentTests
 import pypore.sampledata.testing_files as tf
 
 
-class TestChimeraReader(unittest.TestCase, ReaderTests):
-    SEGMENT_CLASS = ChimeraReader
+class TestChimeraSegment(unittest.TestCase, FileSegmentTests):
+    SEGMENT_CLASS = ChimeraSegment
 
     default_test_data = [
         SegmentTestData(tf.get_abs_path('chimera_small.log'), 1.8157181e-08, 1.7765718e-08, 1.7157802e-08, (10,), 10,
@@ -23,4 +23,4 @@ class TestChimeraReader(unittest.TestCase, ReaderTests):
         """
         test_no_mat_chimera_files = tf.get_abs_path('chimera_empty.log')
         for filename in test_no_mat_chimera_files:
-            self.assertRaises(IOError, ChimeraReader, filename)
+            self.assertRaises(IOError, ChimeraSegment, filename)

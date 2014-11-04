@@ -3,7 +3,7 @@ import os
 import scipy.io as sio
 import numpy as np
 
-from pypore.i_o.readers.abstract_reader import AbstractReader
+from pypore.i_o.files.file_segment import FileSegment
 
 
 # ctypedef np.float_t DTYPE_t
@@ -19,9 +19,9 @@ except NameError:
     xrange = range
 
 
-class ChimeraReader(AbstractReader):
+class ChimeraSegment(FileSegment):
     """
-    Reader class that reads .log files (with corresponding .mat files) produced by the Chimera acquisition software
+    Reads .log files (with corresponding .mat files) produced by the Chimera acquisition software
     at UPenn.
     """
     specs_file = None
@@ -56,7 +56,7 @@ class ChimeraReader(AbstractReader):
         if isinstance(item, int):
             return self._scale_raw_chimera(np.array(self._data[item]))
         else:
-            return ChimeraReader(self._data[item], self.filename, self.sample_rate, self.bit_mask,
+            return ChimeraSegment(self._data[item], self.filename, self.sample_rate, self.bit_mask,
                                  self.scale_multiplication, self.scale_addition)
 
     def __iter__(self):
