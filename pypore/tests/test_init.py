@@ -2,8 +2,8 @@ import unittest
 
 import pypore.sampledata.testing_files as tf
 import pypore
-from pypore.i_o.readers.chimera_reader import ChimeraReader
-from pypore.i_o.readers.heka_reader import HekaReader
+from pypore.i_o.files.chimera_segment import ChimeraSegment
+from pypore.i_o.files.heka_segment import HekaSegment
 
 
 class TestInit(unittest.TestCase):
@@ -14,13 +14,13 @@ class TestInit(unittest.TestCase):
         # Chimera file
         filename = tf.get_abs_path('spheres_20140114_154938_beginning.log')
         f = pypore.open_file(filename)
-        self.assertTrue(isinstance(f, ChimeraReader))
+        self.assertTrue(isinstance(f, ChimeraSegment))
         f.close()
 
         # Heka file
         filename = tf.get_abs_path('heka_1.5s_mean5.32p_std2.76p.hkd')
         f = pypore.open_file(filename)
-        self.assertTrue(isinstance(f, HekaReader))
+        self.assertTrue(isinstance(f, HekaSegment))
         f.close()
 
     def test_opening_bad_extension_raises(self):
@@ -36,19 +36,19 @@ class TestInit(unittest.TestCase):
         """
         # Chimera file
         filename = tf.get_abs_path('spheres_20140114_154938_beginning.log')
-        f = pypore.open_file(filename, ChimeraReader)
+        f = pypore.open_file(filename, ChimeraSegment)
         f.close()
-        self.assertTrue(isinstance(f, ChimeraReader))
+        self.assertTrue(isinstance(f, ChimeraSegment))
 
         # Heka file
         filename = tf.get_abs_path('heka_1.5s_mean5.32p_std2.76p.hkd')
         f = pypore.open_file(filename)
         f.close()
-        self.assertTrue(isinstance(f, HekaReader))
+        self.assertTrue(isinstance(f, HekaSegment))
 
         # Test that passing the wrong Reader results in an error
         # Aka that the reader_class we pass in is actually used.
         filename = tf.get_abs_path('heka_1.5s_mean5.32p_std2.76p.hkd')
         # Heka files should produce an error when being ready by ChimeraReader.
-        self.assertRaises(IOError, pypore.open_file, filename, ChimeraReader)
+        self.assertRaises(IOError, pypore.open_file, filename, ChimeraSegment)
 
