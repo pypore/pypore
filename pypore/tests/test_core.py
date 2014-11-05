@@ -83,7 +83,7 @@ class TestSegment(unittest.TestCase, SegmentTests):
                                                       "1}".format(sample_rate, s2.sample_rate))
 
 
-class ExtractorTests(unittest.TestCase):
+class TestExtractor(unittest.TestCase):
     """
     Tests for Extractor base class.
     """
