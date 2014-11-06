@@ -3,12 +3,12 @@ import os
 import numpy as np
 
 from pypore.i_o.files.file_segment import FileSegment
+from pypore.util import interpret_indexing
 
 # Data types list, in order specified by the HEKA file header v2.0.
 # Using big-endian.
 # Code 0=uint8,1=uint16,2=uint32,3=int8,4=int16,5=int32,
 # 6=single,7=double,8=string64,9=string512
-from pypore.util import interpret_indexing
 
 HEKA_ENCODINGS = [np.dtype('>u1'), np.dtype('>u2'), np.dtype('>u4'),
                   np.dtype('>i1'), np.dtype('>i2'), np.dtype('>i4'),
@@ -56,8 +56,12 @@ class HekaSegment(FileSegment):
             return self.get_data_from_selection(starts, stops, steps)
 
         # otherwise, return a new HekaReader object with the slice requested
+        sample_rate = self.sample_rate
+        if isinstance(item, slice) and item.step is not None and item.step > 1:
+            sample_rate /= item.step
 
-        return HekaSegment(self.filename, starts=starts, stops=stops, steps=steps, shape=shape)
+        return HekaSegment(self.filename, starts=starts, stops=stops, steps=steps, shape=shape,
+                           _sample_rate=sample_rate)
 
     def get_data_from_selection(self, starts, stops, steps):
         """
@@ -65,7 +69,6 @@ class HekaSegment(FileSegment):
         :param starts:
         :param stops:
         :param steps:
-        :param shape:
         :return:
         """
         # how expensive is this here?
@@ -149,7 +152,7 @@ class HekaSegment(FileSegment):
             starts[0] += self._steps[0]
             stops[0] = starts[0] + 1
 
-    def __init__(self, filename, **kwargs):
+    def __init__(self, filename, *args, **kwargs):
         """
         Implementation of :py:func:`prepare_data_file` for Heka ".hkd" files.
         """
@@ -202,7 +205,10 @@ class HekaSegment(FileSegment):
         self._chunk_size = self.per_file_params['Points per block']
         self.points_per_channel_total = self._chunk_size * self.num_blocks_in_file
 
-        self.sample_rate = 1.0 / self.per_file_params['Sampling interval']
+        if not '_sample_rate' in kwargs:
+            self.sample_rate = 1.0 / self.per_file_params['Sampling interval']
+        else:
+            self.sample_rate = kwargs['_sample_rate']
 
         if not 'starts' in kwargs:
             self._starts = []

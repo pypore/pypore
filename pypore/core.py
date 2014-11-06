@@ -68,7 +68,12 @@ class Segment(object):
             return self._data[item]
         else:
             # Return the slice as another Segment object.
-            return Segment(self._data[item], self.sample_rate)
+
+            # reduce the sample rate if the slice has steps
+            sample_rate = self.sample_rate
+            if isinstance(item, slice) and item.step is not None and item.step > 1:
+                sample_rate /= item.step
+            return Segment(self._data[item], sample_rate)
 
     def __len__(self):
         return self.shape[0]

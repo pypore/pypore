@@ -56,7 +56,11 @@ class ChimeraSegment(FileSegment):
         if isinstance(item, int):
             return self._scale_raw_chimera(np.array(self._data[item]))
         else:
-            return ChimeraSegment(self._data[item], self.filename, self.sample_rate, self.bit_mask,
+            # If the item is a slice, we may need to reduce the sample rate
+            sample_rate = self.sample_rate
+            if isinstance(item, slice) and item.step is not None and item.step > 1:
+                sample_rate /= item.step
+            return ChimeraSegment(self._data[item], self.filename, sample_rate, self.bit_mask,
                                  self.scale_multiplication, self.scale_addition)
 
     def __iter__(self):
