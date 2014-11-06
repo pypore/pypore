@@ -73,7 +73,6 @@ class HekaSegment(FileSegment):
         :return:
         """
         indices = s.indices(self._get_total_dimension_len())
-        print "slice: ", s, "indices: ", indices
 
         n_points = get_slice_length(self._get_total_dimension_len(), s)
         # if no points are requested, return an empty array
