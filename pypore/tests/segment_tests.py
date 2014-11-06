@@ -134,9 +134,11 @@ class SegmentTests(object):
             self.assertEqual(data[0], segment[0])
             self.assertEqual(data[1], segment[1])
             self.assertEqual(data[-1], segment[-1])
+            self.assertEqual(data[-3], segment[-3])
             self.assertEqual(data[5], segment[5])
 
             # check negative step sizes
+            print "negative"
             np.testing.assert_array_equal(data[::-1], segment[::-1])
             np.testing.assert_array_equal(data[::-2], segment[::-2])
             np.testing.assert_array_equal(data[::-3], segment[::-3])
