@@ -31,7 +31,7 @@ class TestUtil(unittest.TestCase):
         self.assertEqual(process_range(None, -10000, None, length), (0, 0, 1))
 
         # Negatives steps
-        self.assertEqual(process_range(None, None, -1, length), (length-1, -1, -1))
+        self.assertEqual(process_range(None, None, -1, length), (length - 1, -1, -1))
         self.assertEqual(process_range(5, 2, -1, 10), (5, 2, -1))
         self.assertEqual(process_range(-1, -4, -1, 10), (9, 6, -1))
         self.assertEqual(process_range(-1, -100, -1, 10), (9, -1, -1))
@@ -165,3 +165,116 @@ class TestUtil(unittest.TestCase):
         self.assertRaises(TypeError, interpret_indexing, item_ret['a'], (100,))
 
 
+class TestSliceCombine(unittest.TestCase):
+    def test_slicing_1d_2_slices(self):
+        """
+        Tests 2 combined slicing on 1D data for a bunch of different slices.
+        """
+        # Make a 1D dataset
+        x = np.arange(5)
+        length = len(x)
+
+        # Test indices and steps
+        indices = [None, -6, -2, -1, 0, 1, 3, 6]
+        steps = [-6, -3, -1, 1, 2, 6]
+        indices_l = len(indices)
+        steps_l = len(steps)
+
+        count = 0
+        # 2 tests per loop
+        total = 2 * indices_l ** 4 * steps_l ** 2
+        for i in range(indices_l):
+            for j in range(indices_l):
+                for k in range(steps_l):
+                    for q in range(indices_l):
+                        for r in range(indices_l):
+                            for s in range(steps_l):
+                                slice1 = slice(indices[i], indices[j], steps[k])
+                                slice2 = slice(indices[q], indices[r], steps[s])
+
+                                combined = slice_combine(length, slice1, slice2)
+                                np.testing.assert_array_equal(x[slice1][slice2], x[combined],
+                                                              err_msg="For 1D, slice1: {0},"
+                                                                      "\tslice2: {1},\tcombined: {2}\tPROGRESS: {"
+                                                                      "3}/{4} ({5:.0f}%)".format(slice1, slice2,
+                                                                                                 combined, count,
+                                                                                                 total,
+                                                                                                 float(count) / total))
+
+                                count += 1
+
+    def test_slicing_2d_2_slices(self):
+        """
+        Tests 2 combined slicing on 2D data for a bunch of different slices.
+        """
+        # Make a 1D dataset
+        x = np.arange(10)
+        x = x.reshape((5, 2))
+        length = len(x)
+
+        # Test indices and steps
+        indices = [None, -6, -2, -1, 0, 1, 3, 6]
+        steps = [-6, -3, -1, 1, 2, 6]
+        indices_l = len(indices)
+        steps_l = len(steps)
+
+        count = 0
+        # 2 tests per loop
+        total = 2 * indices_l ** 4 * steps_l ** 2
+        for i in range(indices_l):
+            for j in range(indices_l):
+                for k in range(steps_l):
+                    for q in range(indices_l):
+                        for r in range(indices_l):
+                            for s in range(steps_l):
+                                slice1 = slice(indices[i], indices[j], steps[k])
+                                slice2 = slice(indices[q], indices[r], steps[s])
+
+                                combined = slice_combine(length, slice1, slice2)
+                                np.testing.assert_array_equal(x[slice1][slice2], x[combined],
+                                                              err_msg="For 2D, slice1: {0},"
+                                                                      "\tslice2: {1},\tcombined: {2}\tPROGRESS: {"
+                                                                      "3}/{4} ({5:.0f}%)".format(slice1, slice2,
+                                                                                                 combined, count,
+                                                                                                 total,
+                                                                                                 float(count) / total))
+
+                                count += 1
+
+    def test_three_slices(self):
+        """
+        Test that we can pass in three slices and it still works.
+        """
+        x = np.arange(10)
+        length = len(x)
+
+        slice1 = slice(0, 4, 2)
+        slice2 = slice(None, None, -1)
+        slice3 = slice(1, None, 1)
+
+        combined = slice_combine(length, slice1, slice2, slice3)
+
+        np.testing.assert_array_equal(x[slice1][slice2][slice3], x[combined], err_msg="Three slices failed.")
+
+    def test_one_slice(self):
+        """
+        Tests that passing in one slice returns it.
+        """
+        x = np.arange(10)
+        length = len(x)
+
+        slice1 = slice(0, 4, 2)
+
+        combined = slice_combine(length, slice1)
+
+        np.testing.assert_array_equal(x[slice1], x[combined], err_msg="Three slices failed.")
+
+    def test_no_slices_returns_empty_slice(self):
+        """
+        Tests that passing in no slices returns an empty slice.
+        """
+        combined = slice_combine(10)
+
+        self.assertEqual(combined.start, 0)
+        self.assertEqual(combined.stop, 0)
+        self.assertEqual(combined.step, 1)
