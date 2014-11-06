@@ -25,3 +25,12 @@ class TestHekaSegment(unittest.TestCase, FileSegmentTests):
             reader.chunk_size = chunk
 
         self.assertRaises(AttributeError, set_chunk, 100)
+
+    def test_get_total_dimension_len(self):
+        filename = tf.get_abs_path('heka_1.5s_mean5.32p_std2.76p.hkd')
+        reader = self.SEGMENT_CLASS(filename)
+
+        self.assertEqual(75000, reader._get_total_dimension_len())
+
+        # TODO add test with multichannel data
+
