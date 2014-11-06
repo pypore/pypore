@@ -278,3 +278,31 @@ class TestSliceCombine(unittest.TestCase):
         self.assertEqual(combined.start, 0)
         self.assertEqual(combined.stop, 0)
         self.assertEqual(combined.step, 1)
+
+
+class TestGetSliceLength(unittest.TestCase):
+    def test_regular_slices(self):
+        x = np.arange(100)
+
+        s = slice(0, None, 1)
+        l = get_slice_length(len(x), s)
+        self.assertEqual(l, len(x[s]))
+
+        s = slice(None, None, -1)
+        l = get_slice_length(len(x), s)
+        self.assertEqual(l, len(x[s]))
+
+        s = slice(10, 98, 3)
+        l = get_slice_length(len(x), s)
+        self.assertEqual(l, len(x[s]))
+
+    def test_zero_length(self):
+        x = np.arange(100)
+
+        s = slice(10, 10, 3)
+        l = get_slice_length(len(x), s)
+        self.assertEqual(l, len(x[s]))
+
+        s = slice(10, -10, 3)
+        l = get_slice_length(len(x), s)
+        self.assertEqual(l, len(x[s]))

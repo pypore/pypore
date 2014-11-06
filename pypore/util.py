@@ -200,3 +200,22 @@ def slice_combine(length, *slices):
         slice_final = slice(start, stop, step)
 
     return slice_final
+
+
+def get_slice_length(length, s):
+    """
+    Calculates the length of the slice s used on a data set of length.
+    :param length: length of the data set that the slice is applied to.
+    :param s: The slice.
+    :return: The length of the sliced data set.
+    """
+    indices = s.indices(length)
+
+    new_length = (abs(indices[1] - indices[0]) - 1) // abs(indices[2])
+
+    if (indices[1] - indices[0]) * indices[2] > 0:
+        new_length += 1
+    else:
+        return 0
+
+    return new_length
