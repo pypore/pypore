@@ -138,7 +138,6 @@ class SegmentTests(object):
             self.assertEqual(data[5], segment[5])
 
             # check negative step sizes
-            print "negative"
             np.testing.assert_array_equal(data[::-1], segment[::-1])
             np.testing.assert_array_equal(data[::-2], segment[::-2])
             np.testing.assert_array_equal(data[::-3], segment[::-3])
@@ -267,8 +266,6 @@ class SegmentTests(object):
             del data
             data = np.empty(s2.size)
 
-            print("class: {0}".format(self.SEGMENT_CLASS.__name__))
-
             count = 0
             i = 0
             for i, point in enumerate(s2):
@@ -290,8 +287,6 @@ class SegmentTests(object):
             data_should_be = np.array(s3)
             del data
             data = np.empty(s3.size)
-
-            print("class: {0}".format(self.SEGMENT_CLASS.__name__))
 
             count = 0
             i = 0
