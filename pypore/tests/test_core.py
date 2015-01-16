@@ -1,7 +1,70 @@
 import unittest
 
 from pypore.core import Segment
+from pypore.core import MetaSegment
 from pypore.tests.segment_tests import *
+
+
+class TestMetaSegment(unittest.TestCase):
+    """
+    Tests for :py:class:`pypore.core.MetaSegment`
+    """
+
+    def _test_attributes(self, meta_segment, sample_rate, shape, size, maximum, mean, minimum, std):
+        """
+        Tests that the meta_segment has the correct parameters.
+        :param meta_segment: MetaSegment to be compared to other parameters.
+        """
+        # Test attributes are equal
+        self.assertEqual(sample_rate, meta_segment.sample_rate)
+        self.assertEqual(shape, meta_segment.shape)
+        self.assertEqual(size, meta_segment.size)
+
+        # Test method attributes are equal
+        self.assertEqual(maximum, meta_segment.max())
+        self.assertEqual(mean, meta_segment.mean())
+        self.assertEqual(minimum, meta_segment.min())
+        self.assertEqual(std, meta_segment.std())
+
+    def test_from_segment(self):
+        """
+        Tests that Segment can be cast to a MetaSegment
+        """
+        array = np.random.random(100)
+        s = Segment(array)
+
+        ms = MetaSegment.from_segment(s)
+
+        self._test_attributes(ms, sample_rate=s.sample_rate, shape=s.shape, size=s.size, maximum=s.max(),
+                              mean=s.mean(), minimum=s.min(), std=s.std())
+
+    def test_explicit_param_setting(self):
+        """
+        Tests that we can explicitly set the MetaSegment's parameters.
+        """
+        sample_rate = 1.e6
+        shape = (1, 10)
+        size = 10
+        maximum = 99.
+        minimum = 88.
+        mean = 90.
+        std = 3.
+
+        ms = MetaSegment(sample_rate=sample_rate, shape=shape, size=size, maximum=maximum, minimum=minimum, mean=mean,
+                         std=std)
+
+        self._test_attributes(ms, sample_rate=sample_rate, shape=shape, size=size, maximum=maximum,
+                              mean=mean, minimum=minimum, std=std)
+
+    def test_attributes_can_be_none(self):
+        """
+        Attributes are allowed to be None.
+        """
+
+        ms = MetaSegment()
+
+        self._test_attributes(ms, sample_rate=None, shape=None, size=None, maximum=None,
+                              mean=None, minimum=None, std=None)
 
 
 class TestSegment(unittest.TestCase, SegmentTests):

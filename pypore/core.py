@@ -5,6 +5,120 @@ Core data types.
 import numpy as np
 
 
+class MetaSegment(object):
+    """
+    MetaSegment contains the metadata of a :py:class:`Segment`.
+
+    Attributes:
+
+        * sample_rate - The sampling rate of the segment.
+        * shape - The shape of the data.
+        * size - Number of data points in the Segment.
+
+    Methods:
+
+        * max - Returns the maximum value of the Segment.
+        * mean - Returns the mean of the Segment.
+        * min - Returns the minimum value in the Segment.
+        * std - Returns the standard deviation of the Segment.
+
+    """
+
+    _sample_rate = None
+    _shape = None
+    _size = None
+    _max = None
+    _mean = None
+    _min = None
+    _std = None
+
+    _ndim = None
+
+    def __init__(self, sample_rate=None, shape=None, size=None, maximum=None, mean=None, minimum=None, std=None):
+        self._sample_rate = sample_rate
+        self._shape = shape
+        self._size = size
+
+        self._max = maximum
+        self._mean = mean
+        self._min = minimum
+        self._std = std
+
+    @classmethod
+    def from_segment(cls, segment):
+        """
+        Creates a MetaSegment with all of the metadata from data.
+
+        :param data: :py:class:`Segment` to be converted to MetaSegment.
+
+        >>> from pypore.core import Segment, MetaSegment
+        >>> import numpy as np
+        >>> s = Segment(np.random.random(100))
+        >>> ms = MetaSegment.from_segment(s)
+
+        """
+        return cls(segment.sample_rate, segment.shape, segment.size, segment.max(), segment.mean(), segment.min(),
+                   segment.std())
+
+    def max(self):
+        """
+        Returns the MetaSegment's attribute.
+        :return: The maximum value of the MetaSegment.
+        """
+        return self._max
+
+    def mean(self):
+        """
+        Returns the mean of the data.
+        :return: The mean of the data.
+        """
+        # Cache the mean
+        return self._mean
+
+    def min(self):
+        """
+        Returns the min of the data.
+        :return: The minimum value of the data.
+        """
+        return self._min
+
+    def std(self):
+        """
+        :return: The standard deviation of the data.
+        """
+        return self._std
+
+    @property
+    def ndim(self):
+        """
+        Returns the number of dimensions in the data set.
+        """
+        return self._ndim
+
+    @property
+    def sample_rate(self):
+        """
+        Returns the sample rate of the MetaSegment.
+        :return:
+        """
+        return self._sample_rate
+
+    @property
+    def shape(self):
+        """
+        Returns the shape of the MetaSegment data.
+        :return: The shape of the MetaSegment data.
+        """
+        return self._shape
+
+    @property
+    def size(self):
+        """
+        :return: The number of data points in the Segment.
+        """
+        return self._size
+
+
 class Segment(object):
     """
     Segment is a segment of current data.
@@ -17,6 +131,8 @@ class Segment(object):
     >>> s_first_fifty = Segment[:50]
     >>> isinstance(s_first_fifty, Segment)
     True
+
+    It contains the same attributes and methods as a :py:class:`MetaSegment`.
 
     Attributes:
 
