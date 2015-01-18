@@ -1,6 +1,6 @@
-import numpy as np
-
 import sys
+
+import numpy as np
 
 ALLOWED_INDEX_TYPES = [int]
 if sys.version_info < (3, 0):
@@ -130,3 +130,70 @@ def interpret_indexing(keys, obj_shape):
         shape.append(new_dim)
 
     return starts, stops, steps, tuple(shape)
+
+
+def slice_combine(length, *slices):
+    """
+    Combines slices in series.
+    Usage:
+    >>> import numpy as np
+    >>> x = np.arange(100)
+    >>> slice1 = slice(0, 90, 1)
+    >>> slice2 = slice(None, None, -2)
+    >>> combined = slice_combine(len(x), slice1, slice2)
+    >>> np.testing.assert_array_equal(x[slice1][slice2], x[combined])
+    :param length: The length of the first dimension of data being sliced. (eg len(x))
+    :param *slices: Pass in one or many slices.
+    :returns: A slice that is a combination of the series input slices.
+    """
+
+    if len(slices) < 1:
+        return slice(0, 0, 1)
+
+    slice_final = slices[0]
+
+    for i in xrange(1, len(slices)):
+        slice1 = slice_final
+        slice2 = slices[i]
+
+        # First get the step sizes of the two slices.
+        slice1_step = (slice1.step if slice1.step is not None else 1)
+        slice2_step = (slice2.step if slice2.step is not None else 1)
+
+        # The final step size
+        step = slice1_step * slice2_step
+
+        # Use slice1.indices to get the actual indices returned from slicing with slice1
+        slice1_indices = slice1.indices(length)
+
+        # We calculate the length of the first slice
+        slice1_length = (abs(slice1_indices[1] - slice1_indices[0]) - 1) // abs(slice1_indices[2])
+
+        # If we step in the same direction as the start,stop, we get at least one datapoint
+        if (slice1_indices[1] - slice1_indices[0]) * slice1_step > 0:
+            slice1_length += 1
+        else:
+            # Otherwise, The slice is zero length.
+            return slice(0, 0, step)
+
+        # Use the length after the first slice to get the indices returned from a
+        # second slice starting at 0.
+        slice2_indices = slice2.indices(slice1_length)
+
+        # if the final range length = 0, return
+        if not (slice2_indices[1] - slice2_indices[0]) * slice2_step > 0:
+            return slice(0, 0, step)
+
+        # We shift slice2_indices by the starting index in slice1 and the
+        # step size of slice1
+        start = slice1_indices[0] + slice2_indices[0] * slice1_step
+        stop = slice1_indices[0] + slice2_indices[1] * slice1_step
+
+        # slice.indices will return -1 as the stop index when slice.stop should be set to None.
+        if start > stop:
+            if stop < 0:
+                stop = None
+
+        slice_final = slice(start, stop, step)
+
+    return slice_final
