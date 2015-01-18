@@ -31,7 +31,7 @@ class TestUtil(unittest.TestCase):
         self.assertEqual(process_range(None, -10000, None, length), (0, 0, 1))
 
         # Negatives steps
-        self.assertEqual(process_range(None, None, -1, length), (length-1, -1, -1))
+        self.assertEqual(process_range(None, None, -1, length), (length - 1, -1, -1))
         self.assertEqual(process_range(5, 2, -1, 10), (5, 2, -1))
         self.assertEqual(process_range(-1, -4, -1, 10), (9, 6, -1))
         self.assertEqual(process_range(-1, -100, -1, 10), (9, -1, -1))
@@ -278,3 +278,31 @@ class TestSliceCombine(unittest.TestCase):
         self.assertEqual(combined.start, 0)
         self.assertEqual(combined.stop, 0)
         self.assertEqual(combined.step, 1)
+
+
+class TestGetSliceLength(unittest.TestCase):
+    def test_regular_slices(self):
+        x = np.arange(100)
+
+        s = slice(0, None, 1)
+        l = get_slice_length(len(x), s)
+        self.assertEqual(l, len(x[s]))
+
+        s = slice(None, None, -1)
+        l = get_slice_length(len(x), s)
+        self.assertEqual(l, len(x[s]))
+
+        s = slice(10, 98, 3)
+        l = get_slice_length(len(x), s)
+        self.assertEqual(l, len(x[s]))
+
+    def test_zero_length(self):
+        x = np.arange(100)
+
+        s = slice(10, 10, 3)
+        l = get_slice_length(len(x), s)
+        self.assertEqual(l, len(x[s]))
+
+        s = slice(10, -10, 3)
+        l = get_slice_length(len(x), s)
+        self.assertEqual(l, len(x[s]))
