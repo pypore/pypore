@@ -3,12 +3,12 @@ import os
 import numpy as np
 
 from pypore.i_o.abstract_reader import AbstractReader
+from pypore.util import slice_combine, get_slice_length
 
 # Data types list, in order specified by the HEKA file header v2.0.
 # Using big-endian.
 # Code 0=uint8,1=uint16,2=uint32,3=int8,4=int16,5=int32,
 # 6=single,7=double,8=string64,9=string512
-from pypore.util import interpret_indexing
 
 HEKA_ENCODINGS = [np.dtype('>u1'), np.dtype('>u2'), np.dtype('>u4'),
                   np.dtype('>i1'), np.dtype('>i2'), np.dtype('>i4'),
@@ -36,34 +36,39 @@ def _get_param_list_byte_length(param_list):
 
 
 class HekaReader(AbstractReader):
+    _channel_selected = None
+
     def __array__(self):
-        return self.get_data_from_selection(self._starts, self._stops, self._steps)
+        return self.get_data_from_selection(self._slice)
+
+    def _get_total_dimension_length(self):
+        if self._channel_selected is None:
+            return self.channel_list_number
+        return self.points_per_channel_total
 
     def __getitem__(self, item):
-        # first we have to interpret the selection
-        starts, stops, steps, shape = interpret_indexing(item, self.shape)
-
-        for i in xrange(len(starts)):
-            starts[i] += self._starts[i]
-            stops[i] = min(self._stops[i], stops[i])
-            steps[i] *= self._steps[i]
-
-        # if we just want a single datapoint, return it
-        size = 1
-        for i in shape:
-            size *= i
-        if size == 1:
-            return self.get_data_from_selection(starts, stops, steps)
-
-        # otherwise, return a new HekaReader object with the slice requested
-        # reduce sample rate if the slice has steps
         sample_rate = self.sample_rate
-        if isinstance(item, slice) and item.step is not None and item.step > 1:
-            sample_rate /= item.step
 
-        return HekaReader(self.filename, starts=starts, stops=stops, steps=steps, shape=shape, _sample_rate=sample_rate)
+        if isinstance(item, int):
+            if self._channel_selected is not None:
+                if item == -1:
+                    stop = None
+                else:
+                    stop = item + 1
+                return self.get_data_from_selection(slice(item, stop, 1))
+            else:
+                new_slice = slice(0, 0, 1)
+                channel_selected = item
+        else:
+            channel_selected = self._channel_selected
 
-    def get_data_from_selection(self, starts, stops, steps):
+            if isinstance(item, slice) and item.step is not None and item.step > 1:
+                sample_rate /= item.step
+            new_slice = slice_combine(self._get_total_dimension_length(), self._slice, item)
+
+        return HekaReader(self.filename, _slice=new_slice, _sample_rate=sample_rate, _channel_selected=channel_selected)
+
+    def get_data_from_selection(self, s):
         """
         Returns the requested data.
         :param starts:
@@ -72,22 +77,23 @@ class HekaReader(AbstractReader):
         :param shape:
         :return:
         """
-        # how expensive is this here?
-        my_range = xrange(starts[0], stops[0], steps[0])
+        indices = s.indices(self._get_total_dimension_length())
 
-        n_points = len(my_range)
+        n_points = get_slice_length(self._get_total_dimension_length(), s)
         # if no points are requested, return an empty array
         if n_points == 0:
             return np.zeros(0, dtype=HEKA_DATATYPE)
 
+        start = indices[0]
+        stop = indices[1]
+        step = indices[2]
         # if the step size is < 0, we need to figure out what the first point actually is
-        if steps[0] > 0:
-            start = starts[0]
+        if step > 0:
             negative_step = False
         else:
-            start = my_range[-1]
+            start = xrange(start, stop, step)[-1]
             negative_step = True
-        step_size = abs(steps[0])
+        step_size = abs(step)
 
         # find the block number that contains the start of the selection
         start_block_number = start // self._chunk_size
@@ -132,26 +138,17 @@ class HekaReader(AbstractReader):
         """
         # TODO this is a slow implementation ~9s to run on lab pc. Make it faster.
         # get the number of elements to return
-        my_range = xrange(self._starts[0], self._stops[0], self._steps[0])
-        n_elements = len(my_range)
+        indices = self._slice.indices(self._get_total_dimension_length())
+        n_elements = get_slice_length(self._get_total_dimension_length(), self._slice)
 
         # setup the starts/stops/steps
-        starts = [self._starts[0]]
-        stops = [starts[0] + 1]
-        steps = [self._steps[0]]
-
-        # add on the > 1st dimension of the current slice
-        for j in xrange(1, len(self.shape)):
-            starts.append(self._starts[j])
-            stops.append(self._stops[j])
-            steps.append(self._steps[j])
+        start = indices[0]
+        step = indices[2]
 
         for i in xrange(n_elements):
             # get the chunk of data
-            chunk = self.get_data_from_selection(starts, stops, steps)
+            chunk = self.get_data_from_selection(slice(start + i * step, start + i * step + 1, step))
             yield chunk
-            starts[0] += self._steps[0]
-            stops[0] = starts[0] + 1
 
     def __init__(self, filename, *args, **kwargs):
         """
@@ -216,20 +213,18 @@ class HekaReader(AbstractReader):
         else:
             self.sample_rate = kwargs['_sample_rate']
 
-        if not 'starts' in kwargs:
-            self._starts = []
-            self._stops = []
-            self._steps = []
-            for i in xrange(self.channel_list_number):
-                # append start, stop, step for each channel.
-                self._starts.append(0)
-                self._stops.append(self.points_per_channel_total)
-                self._steps.append(1)
+        if not '_slice' in kwargs:
+            self._slice = slice(0, None, 1)
         else:
-            self._starts = kwargs['starts']
-            self._stops = kwargs['stops']
-            self._steps = kwargs['steps']
-            self._shape = kwargs['shape']
+            self._slice = kwargs['_slice']
+
+        if not '_channel_selected' in kwargs:
+            if self.channel_list_number > 1:
+                self._channel_selected = None
+            else:
+                self._channel_selected = 0
+        else:
+            self._channel_selected = kwargs['_channel_selected']
 
     def _read_heka_next_block(self):
         """
@@ -308,12 +303,9 @@ class HekaReader(AbstractReader):
     @property
     def shape(self):
         if self._shape is None:
-            if self.channel_list_number > 1:
-                x = max((self._stops[1] - self._starts[1]) // self._steps[1], 1)
-                self._shape = (self.channel_list_number, x)
-            else:
-                x = max((self._stops[0] - self._starts[0]) // self._steps[0], 1)
-                self._shape = (x,)
+            # TODO fix for multidimensional
+            x = get_slice_length(self._get_total_dimension_length(), self._slice)
+            self._shape = (x,)
         return self._shape
 
     @property
