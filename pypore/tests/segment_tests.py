@@ -505,3 +505,45 @@ class SegmentTests(object):
                              "For class {0}, segment ndim incorrect. Should be {1}. Was {2}.".format(
                                  self.SEGMENT_CLASS.__name__, np.ndim(arr), s_ndim))
 
+    def test_slicing_step_changes_sample_rate_1d(self):
+        """
+        Tests that slicing the segment with a step changes the sample rate.
+        Slicing with a step size of 3 should reduce the sample rate by 1/3.
+        Note, the sample rate should only change if slicing 1D data.
+        """
+        # Only check for one dimensional data sets
+        for test_data in (y for y in self.default_test_data if len(y.shape) == 1):
+            s = self.SEGMENT_CLASS(test_data.data, test_data.sample_rate)
+
+            for step in [1, 2, 3, 4]:
+                s2 = s[::step]
+
+                # Sample rate should be reduced by the step size
+                sample_rate_should_be = test_data.sample_rate / step
+
+                self.assertAlmostEqual(sample_rate_should_be, s2.sample_rate,
+                                       msg="For class {0}, sample rate not corrected after sliced with step. Should "
+                                           "be {1}. Was {2}.".format(
+                                           self.SEGMENT_CLASS.__name__, sample_rate_should_be, s2.sample_rate))
+
+    def test_slicing_step_doesnt_change_sample_rate_multidimensional(self):
+        """
+        Slicing a segment with a step should not change the sample rate of the new segment if the original segment is
+        greater than on dimensional.
+        """
+        # Only check for ndim > 1 data sets
+        for test_data in (y for y in self.default_test_data if len(y.shape) > 1):
+            s = self.SEGMENT_CLASS(test_data.data, test_data.sample_rate)
+
+            for step in [1, 2, 3, 4]:
+                s2 = s[::step]
+
+                # The sample rate should not be reduced if the data is originally multidimensional
+                sample_rate_should_be = test_data.sample_rate
+
+                self.assertAlmostEqual(sample_rate_should_be, s2.sample_rate,
+                                       msg="For class {0}, sample rate should not change after sliced with step for "
+                                           "multidimensional data. Should be {1}. Was {2}.".format(
+                                           self.SEGMENT_CLASS.__name__,
+                                           sample_rate_should_be,
+                                           s2.sample_rate))
