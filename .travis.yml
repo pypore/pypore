@@ -27,8 +27,8 @@ install:
 
   # pip Scipy/Numpy versions take too long, use astropy wheels
   - sudo apt-get install libblas-dev libatlas-dev liblapack-dev
-  - pip install --no-index --find-links http://wheels2.astropy.org/ numpy --trusted-host
-  - pip install --no-index --find-links http://wheels2.astropy.org/ scipy --trusted-host
+  - pip install --no-index --find-links --trusted-host http://wheels2.astropy.org/ numpy
+  - pip install --no-index --find-links --trusted-host http://wheels2.astropy.org/ scipy
 
   - if [ "${TESTMODE}" == "full" ]; then pip install coveralls; fi;
   - python setup.py install
