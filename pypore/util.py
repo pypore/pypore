@@ -141,14 +141,19 @@ def slice_combine(length, *slices):
     >>> slice1 = slice(0, 90, 1)
     >>> slice2 = slice(None, None, -2)
     >>> combined = slice_combine(len(x), slice1, slice2)
+    >>> combined_equivalent = slice_combine(len(x), [slice1, slice2])
     >>> np.testing.assert_array_equal(x[slice1][slice2], x[combined])
     :param length: The length of the first dimension of data being sliced. (eg len(x))
-    :param *slices: Pass in one or many slices.
+    :param *slices: Pass in one or many slices. Can be either as a list, or individually.
     :returns: A slice that is a combination of the series input slices.
     """
 
     if len(slices) < 1:
         return slice(0, 0, 1)
+
+    # If zeroth argument is not a slice, we'll assume it's a list of slices
+    if not isinstance(slices[0], slice):
+        slices = slices[0]
 
     slice_final = slices[0]
 

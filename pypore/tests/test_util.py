@@ -256,6 +256,20 @@ class TestSliceCombine(unittest.TestCase):
 
         np.testing.assert_array_equal(x[slice1][slice2][slice3], x[combined], err_msg="Three slices failed.")
 
+    def test_list_of_three_slices(self):
+        """
+        Tests that we can pass in a list of slices
+        """
+        x = np.arange(10)
+        length = len(x)
+
+        slices = [slice(0, 4, 2), slice(None, None, -1), slice(1, None, 1)]
+
+        combined = slice_combine(length, slices)
+
+        np.testing.assert_array_equal(x[slices[0]][slices[1]][slices[2]], x[combined],
+                                      err_msg="Three slices list failed.")
+
     def test_one_slice(self):
         """
         Tests that passing in one slice returns it.
