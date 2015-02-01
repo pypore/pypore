@@ -30,18 +30,154 @@ class TestSegmentDatabase(unittest.TestCase):
 
         database.close()
 
-    def test_existing_db_has_segment_or_meta_segment(self):
+    def test_opening_non_existing_mode_r_raises(self):
+        """
+        Trying to open a non-existing file in read only mode should raise an error.
+        """
+        filename = 'TSD_test_opening_non_existing_mode_r_raises.test.h5'
+        if os.path.exists(filename):
+            os.remove(filename)
+
+        self.assertRaises(IOError, SegmentDatabase.open_file, filename, mode='r')
+
+    def test_opening_non_existing_mode_r_plus_raises(self):
+        """
+        Trying to open a non-existing file in read only plus mode should raise an error.
+        """
+        filename = 'TSD_test_opening_non_existing_mode_r_raises.test.h5'
+        if os.path.exists(filename):
+            os.remove(filename)
+
+        self.assertRaises(IOError, SegmentDatabase.open_file, filename, mode='r+')
+
+    def test_opening_mode_w_minus_file_exist_raises(self):
+        """
+        Tests that opening a file with mode 'w-' raises an error if the file exists.
+        """
+        filename = 'TSD_test_opening_mode_w_minus_file_exist_raises.test.h5'
+        if os.path.exists(filename):
+            os.remove(filename)
+
+        # Create initial file
+        db = SegmentDatabase.open_file(filename, mode='w-')
+        db.segment = Segment(np.random.random)
+        db.close()
+
+        self.assertTrue(os.path.exists(filename))
+
+        self.assertRaises(IOError, SegmentDatabase.open_file, filename, mode='w-')
+
+    def test_opening_mode_w_truncates(self):
+        """
+        Tests that opening file with mode 'w' truncates an existing file.
+        """
+        filename = 'TSD_test_opening_mode_w_truncates.test.h5'
+        if os.path.exists(filename):
+            os.remove(filename)
+
+        # Create initial database
+        db = SegmentDatabase.open_file(filename, mode='w')
+        db.segment = Segment(np.random.random(100))
+        db.append(0, 50)
+        db.close()
+
+        self.assertTrue(os.path.exists(filename))
+
+        # Open database file again, make sure it's empty
+        db = SegmentDatabase.open_file(filename, mode='w')
+
+        self.assertTrue(db.segment is None)
+        self.assertEqual(db.size, 0)
+
+        db.close()
+
+        self.assertTrue(os.path.exists(filename))
+
+        os.remove(filename)
+
+    def test_opening_mode_a_creates_new_file(self):
+        """
+        Tests that opening db with mode 'a' opens a new file of one doesn't exist.
+        """
+        filename = 'TSD_test_opening_mode_a_creates_new_file.test.h5'
+        if os.path.exists(filename):
+            os.remove(filename)
+
+        self.assertTrue(not os.path.exists(filename))
+
+        db = SegmentDatabase.open_file(filename, mode='a')
+        db.close()
+
+        self.assertTrue(os.path.exists(filename))
+
+        os.remove(filename)
+
+    def _help_test_opening_mode_a(self, filename):
+        if os.path.exists(filename):
+            os.remove(filename)
+        segment = Segment(np.random.random(100))
+        # Create initial file
+        db = SegmentDatabase.open_file(filename, mode='a')
+        db.segment = segment
+        db.append(1, 10)
+        db.close()
+        # Open again with mode 'a'
+        db = SegmentDatabase.open_file(filename, mode='a')
+        np.testing.assert_array_equal(db.segment, segment)
+        self.assertEqual(db.size, 1)
+        np.testing.assert_array_equal(db[0].segment, segment[1:10])
+        # Test that we can write
+        db.append(start=11, stop=20)
+        self.assertEqual(db.size, 2)
+        db.close()
+        os.remove(filename)
+
+    def test_opening_mode_a_existing_file_read_write(self):
+        """
+        Tests that mode 'a' on an existing file opens in read/write mode.
+        """
+        filename = 'TSD_test_opening_mode_a_existing_file_read_write.test.h5'
+        self._help_test_opening_mode_a(filename)
+
+    def test_open_default_mode_a(self):
+        """
+        Tests that the default opening mode is 'a'.
+        :return:
+        """
+        filename = 'TSD_test_open_default_mode_a.test.h5'
+        self._help_test_opening_mode_a(filename)
+
+    def test_existing_db_has_segment(self):
+        """
+        Tests that calling db.segment on a pre-existing db returns a Segment
+        """
         filename = get_abs_path('db_1.h5')
 
-        database = SegmentDatabase.open_file(filename)
+        database = SegmentDatabase.open_file(filename, mode='r')
 
         segment = database.segment
 
-        self.assertTrue(isinstance(segment, Segment) or isinstance(segment, MetaSegment))
+        self.assertTrue(isinstance(segment, Segment))
 
         # TODO add assert for data equality
 
         database.close()
+
+    def test_existing_db_has_meta_segment(self):
+        """
+        Tests that calling db.segment on a pre-existing db returns a Segment
+        """
+        filename = get_abs_path('db_2.h5')
+
+        db = SegmentDatabase.open_file(filename, mode='r')
+
+        meta_segment = db.segment
+
+        self.assertTrue(isinstance(meta_segment, MetaSegment))
+
+        # TODO assert for meta data equality
+
+        db.close()
 
     def test_setting_segment(self):
         """
