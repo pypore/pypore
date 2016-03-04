@@ -273,3 +273,38 @@ class Segment(object):
             except AttributeError:
                 self._size = np.size(self._data)
         return self._size
+
+
+class SegmentDatabase(object):
+
+    def __init__(self, segment=None, parent=None):
+        self.segment = segment
+        self.parent = parent
+
+        self.child_dbs = []
+
+    def __getitem__(self, item):
+        """
+        Returns the child database at the location.
+        """
+        if isinstance(item, int):
+            # Return single number.
+            return self.child_dbs[item]
+
+    def add_segment(self, start=None, end=None, segment=None):
+        """
+        Adds a Segment to the database. This can be a
+        """
+        if segment is not None:
+            # If segment was passed in, use add it to the child database
+            self.child_dbs.append(SegmentDatabase(segment, parent=self))
+        else:
+            # Otherwise, use the slice from the current db's segment
+            self.child_dbs.append(SegmentDatabase(self.segment[start:end], parent=self))
+
+    @property
+    def size(self):
+        """
+        Returns the number of child `SegmentDatabase`s
+        """
+        return len(self.child_dbs)
