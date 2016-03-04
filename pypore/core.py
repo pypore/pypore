@@ -276,6 +276,9 @@ class Segment(object):
 
 
 class SegmentDatabase(object):
+    """
+    A `SegmentDatabase`
+    """
 
     def __init__(self, segment=None, parent=None):
         self.segment = segment
@@ -291,16 +294,19 @@ class SegmentDatabase(object):
             # Return single number.
             return self.child_dbs[item]
 
-    def add_segment(self, start=None, end=None, segment=None):
+    def add_segment(self, i=None, j=None, segment=None):
         """
         Adds a Segment to the database. This can be a
         """
         if segment is not None:
             # If segment was passed in, use add it to the child database
             self.child_dbs.append(SegmentDatabase(segment, parent=self))
+        elif j is not None:
+            # If j is not None, then we have been passed in the [i,j)
+            self.child_dbs.append(SegmentDatabase(self.segment[i:j], parent=self))
         else:
             # Otherwise, use the slice from the current db's segment
-            self.child_dbs.append(SegmentDatabase(self.segment[start:end], parent=self))
+            self.child_dbs.append(SegmentDatabase(self.segment[i], parent=self))
 
     @property
     def size(self):

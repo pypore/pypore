@@ -176,3 +176,22 @@ class TestSegmentDatabase(unittest.TestCase):
             np.testing.assert_array_equal(segments[i], db[i].segment)
 
         # TODO test metadata
+
+    def test_adding_segment_with_constructor(self):
+        """
+        Tests that we can pass a segment into the constructor of SegmentDatabase.
+        """
+        seg = Segment(np.random.random(100))
+        db = SegmentDatabase(seg)
+
+        np.testing.assert_array_equal(seg, db.segment)
+
+    def test_add_segment_with_slice(self):
+        seg = Segment(np.random.random(100))
+        db = SegmentDatabase(seg)
+
+        slic = slice(11,24,3)
+
+        db.add_segment(slic)
+
+        np.testing.assert_array_equal(seg[slic], db[0].segment)
