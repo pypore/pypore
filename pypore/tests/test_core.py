@@ -18,6 +18,10 @@ class TestMetaSegment(unittest.TestCase):
         # Test attributes are equal
         self.assertEqual(sample_rate, meta_segment.sample_rate)
         self.assertEqual(shape, meta_segment.shape)
+        if shape is not None:
+            self.assertEqual(len(shape), meta_segment._ndim)
+        else:
+            self.assertEqual(None, meta_segment._ndim)
         self.assertEqual(size, meta_segment.size)
 
         # Test method attributes are equal

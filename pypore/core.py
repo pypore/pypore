@@ -37,6 +37,8 @@ class MetaSegment(object):
     def __init__(self, sample_rate=None, shape=None, size=None, maximum=None, mean=None, minimum=None, std=None):
         self._sample_rate = sample_rate
         self._shape = shape
+        if shape is not None:
+            self._ndim = len(shape)
         self._size = size
 
         self._max = maximum
@@ -128,7 +130,7 @@ class Segment(object):
     >>> from pypore.core import Segment
     >>> import numpy as np
     >>> s = Segment(np.random.random(100))
-    >>> s_first_fifty = Segment[:50]
+    >>> s_first_fifty = s[:50]
     >>> isinstance(s_first_fifty, Segment)
     True
 
