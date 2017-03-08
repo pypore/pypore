@@ -62,3 +62,31 @@ class TestHekaReader(unittest.TestCase, ReaderTests):
             if block.size < 1:
                 done = True
         self.assertTrue(done)
+
+    def test_two_channel_channel_number(self):
+        """
+        """
+        # TODO finish
+
+        f = tf.get_abs_path('heka_2channel_1.3s_ch0_mean-24.84fA_rms2.09pA_ch1_mean.hkd')
+
+        segment = self.SEGMENT_CLASS(f)
+
+        # make sure there are 2 channels
+        self.assertEqual(len(segment), 2)
+
+        # make sure each channel has data
+        self.assertGreater(len(segment[0]), 1)
+        self.assertGreater(len(segment[1]), 1)
+
+    def test_two_channel_ndim(self):
+
+        segment = self.SEGMENT_CLASS(tf.get_abs_path('heka_2channel_1.3s_ch0_mean-24.84fA_rms2.09pA_ch1_mean.hkd'))
+
+        self.assertEqual(segment.ndim, 2)
+
+    def test_two_channel__stats(self):
+
+        segment = self.SEGMENT_CLASS(tf.get_abs_path('heka_2channel_1.3s_ch0_mean-24.84fA_rms2.09pA_ch1_mean.hkd'))
+
+        self.assertAlmostEqual(segment[0].mean(), 24.84e-12)

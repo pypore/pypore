@@ -226,6 +226,9 @@ class HekaReader(AbstractReader):
         else:
             self._channel_selected = kwargs['_channel_selected']
 
+        # Create a memmap of the remaining data
+        # self.datafile.seek(self.per_file_header_length + start_block_number * self.total_bytes_per_block)
+
     def _read_heka_next_block(self):
         """
         Reads the next block of heka data.
