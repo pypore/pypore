@@ -15,6 +15,8 @@ def open_file(filename, reader_class=None):
     chosen based on the file extension.
     :return: An open reader.
     """
+    # make sure the filename is a string
+    filename = str(filename)
 
     if reader_class is not None:
         return reader_class(filename)
