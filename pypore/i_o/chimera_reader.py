@@ -54,7 +54,7 @@ class ChimeraReader(AbstractReader):
         :return:
         """
         if isinstance(item, int):
-            return self._scale_raw_chimera(np.array(self._data[item]))
+            return self._scale_raw_chimera(self._data[item])
         else:
             # reduce sample rate if the slice has steps
             sample_rate = self.sample_rate
@@ -66,7 +66,7 @@ class ChimeraReader(AbstractReader):
 
     def __iter__(self):
         for point in self._data:
-            yield self._scale_raw_chimera(np.array(point))
+            yield self._scale_raw_chimera(point)
 
     def _scale_raw_chimera(self, values):
         """
@@ -75,8 +75,11 @@ class ChimeraReader(AbstractReader):
         :param values: numpy array of Chimera values. (raw <u2 datatype)
         :returns: Array of scaled Chimera values (np.float datatype)
         """
-        values &= self.bit_mask
-        values = values.astype(CHIMERA_OUTPUT_DATA_TYPE, copy=False)
+        values = values & self.bit_mask
+        if hasattr(values, '__iter__'):
+            values = values.astype(CHIMERA_OUTPUT_DATA_TYPE, copy=False)
+        else:
+            values = values.astype(CHIMERA_OUTPUT_DATA_TYPE)
         values *= self.scale_multiplication
         values += self.scale_addition
 
